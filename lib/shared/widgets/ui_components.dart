@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'trip_presentation.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/theme/app_colors.dart';
 
@@ -189,12 +191,12 @@ class MetricCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(9),
+                padding: const EdgeInsets.all(7),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: .12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: color),
+                child: Icon(icon, color: color, size: 21),
               ),
               const Spacer(),
               Text(
@@ -204,7 +206,7 @@ class MetricCard extends StatelessWidget {
                 )
                     .textTheme
                     .headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.w800),
+                    ?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -.8),
               ),
               Text(
                 label,
@@ -212,7 +214,8 @@ class MetricCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(
                   context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.muted),
+                ).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ],
           ),
@@ -330,5 +333,279 @@ class EmptyState extends StatelessWidget {
             ],
           ),
         ),
+      );
+}
+
+/// Shared icon-only navigation, with labels retained for accessibility.
+class AppNavigationBar extends StatelessWidget {
+  const AppNavigationBar({
+    super.key,
+    required this.selectedIndex,
+    required this.onDestinationSelected,
+    required this.destinations,
+  });
+
+  final int selectedIndex;
+  final ValueChanged<int> onDestinationSelected;
+  final List<NavigationDestination> destinations;
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    return Material(
+      color: dark ? const Color(0xFF1B2B40) : Colors.white,
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 76,
+          child: Row(
+            children: List.generate(destinations.length, (index) {
+              final destination = destinations[index];
+              final selected = index == selectedIndex;
+              return Expanded(
+                child: Semantics(
+                  label: destination.label,
+                  button: true,
+                  selected: selected,
+                  child: Tooltip(
+                    message: destination.label,
+                    child: InkResponse(
+                      onTap: () => onDestinationSelected(index),
+                      radius: 30,
+                      child: SizedBox.expand(
+                        child: ExcludeSemantics(
+                          child: Center(
+                            child: SizedBox(
+                              width: 56,
+                              height: 56,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  AnimatedContainer(
+                                    duration: reduceMotion
+                                        ? Duration.zero
+                                        : const Duration(milliseconds: 200),
+                                    curve: Curves.easeOutCubic,
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: selected
+                                          ? AppColors.navy
+                                          : Colors.transparent,
+                                      border: Border.all(
+                                        color: selected
+                                            ? AppColors.navy
+                                            : Colors.transparent,
+                                        width: 1.2,
+                                      ),
+                                    ),
+                                    child: IconTheme(
+                                      data: IconThemeData(
+                                        size: 25,
+                                        color: selected
+                                            ? Colors.white
+                                            : const Color(0xFF9CB3D3),
+                                      ),
+                                      child: selected
+                                          ? destination.selectedIcon ??
+                                              destination.icon
+                                          : destination.icon,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 1,
+                                    right: 1,
+                                    child: AnimatedOpacity(
+                                      opacity: selected ? 1 : 0,
+                                      duration: reduceMotion
+                                          ? Duration.zero
+                                          : const Duration(milliseconds: 200),
+                                      child: Container(
+                                        width: 8,
+                                        height: 8,
+                                        decoration: const BoxDecoration(
+                                          color: AppColors.navy,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class WorkspaceHeader extends StatelessWidget {
+  const WorkspaceHeader(
+      {super.key,
+      required this.name,
+      required this.workspace,
+      required this.icon,
+      this.detail,
+      this.onNotifications,
+      this.onProfile});
+  final String name, workspace;
+  final String? detail;
+  final IconData icon;
+  final VoidCallback? onNotifications, onProfile;
+
+  @override
+  Widget build(BuildContext context) => AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: Container(
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
+            gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [AppColors.navy, Color(0xFF19588F)]),
+          ),
+          child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(22, 12, 22, 18),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(children: [
+                        Icon(icon, color: const Color(0xFFAFD4F2), size: 25),
+                        const SizedBox(width: 12),
+                        Expanded(
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                              const Text('Good morning,',
+                                  style: TextStyle(
+                                      color: Color(0xFFB4CEE5), fontSize: 12)),
+                              const SizedBox(height: 4),
+                              Text(name,
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 17)),
+                            ])),
+                        if (onNotifications != null) ...[
+                          IconButton.filled(
+                              onPressed: onNotifications,
+                              tooltip: 'Notifications',
+                              style: IconButton.styleFrom(
+                                  backgroundColor:
+                                      Colors.white.withValues(alpha: .12),
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15))),
+                              icon: const Icon(Icons.notifications_outlined,
+                                  size: 23)),
+                          const SizedBox(width: 8),
+                        ],
+                        Semantics(
+                            label: 'Profile',
+                            button: onProfile != null,
+                            child: InkWell(
+                                onTap: onProfile,
+                                borderRadius: BorderRadius.circular(16),
+                                child: Container(
+                                    width: 46,
+                                    height: 46,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                        color: const Color(0xFF286594),
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                            color: Colors.white70, width: 1.5)),
+                                    child: Text(
+                                        name
+                                            .split(' ')
+                                            .where((word) => word.isNotEmpty)
+                                            .take(2)
+                                            .map((word) => word[0])
+                                            .join(),
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 17))))),
+                      ]),
+                      const SizedBox(height: 14),
+                      Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 11),
+                          decoration: BoxDecoration(
+                              color: const Color(0xFFF5F9FC),
+                              borderRadius: BorderRadius.circular(18)),
+                          child: Row(children: [
+                            Icon(icon, color: AppColors.navy, size: 22),
+                            const SizedBox(width: 12),
+                            Expanded(
+                                child: Text(detail ?? workspace,
+                                    style: const TextStyle(
+                                        color: AppColors.navy,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500))),
+                          ])),
+                      const SizedBox(height: 16),
+                      Row(children: [
+                        Expanded(
+                            flex: 3,
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(workspace,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 25,
+                                          height: 1.12,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: -.7)),
+                                  const SizedBox(height: 8),
+                                  const Text('N1 Logistic',
+                                      style: TextStyle(
+                                          color: Color(0xFFC7DCEC),
+                                          fontSize: 13)),
+                                ])),
+                        const SizedBox(width: 16),
+                        const Flexible(flex: 2, child: CargoArtwork(size: 96)),
+                      ]),
+                    ]),
+              )),
+        ),
+      );
+}
+
+class DashboardContent extends StatelessWidget {
+  const DashboardContent(
+      {super.key,
+      required this.children,
+      this.padding = const EdgeInsets.all(AppSpacing.lg)});
+  final List<Widget> children;
+  final EdgeInsets padding;
+  @override
+  Widget build(BuildContext context) => ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          if (children.isNotEmpty) children.first,
+          Padding(
+              padding: padding,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: children.skip(1).toList(),
+              )),
+        ],
       );
 }

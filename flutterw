@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+flutter_bin="$project_dir/.tooling/flutter/bin/flutter"
+
+# Use the installed Xcode when only Command Line Tools are selected globally.
+# Preserve any explicitly selected developer directory.
+if [[ "$(uname -s)" == Darwin && -z "${DEVELOPER_DIR:-}" ]]; then
+  selected_developer_dir="$(xcode-select -p 2>/dev/null || true)"
+  if [[ "$selected_developer_dir" == /Library/Developer/CommandLineTools &&
+        -d /Applications/Xcode.app/Contents/Developer ]]; then
+    export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
+  fi
+fi
+
+if [[ ! -x "$flutter_bin" ]]; then
+  printf '%s\n' 'The project Flutter SDK is missing. From the project directory, run:' >&2
+  printf '%s\n' 'git clone --branch 3.35.7 --depth 1 https://github.com/flutter/flutter.git .tooling/flutter' >&2
+  exit 1
+fi
+
+exec "$flutter_bin" "$@"

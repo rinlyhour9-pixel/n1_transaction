@@ -1,0 +1,16 @@
+{
+  "dart.flutterSdkPath": ".tooling/flutter",
+  "dart.addSdkToTerminalPath": true,
+  "dart.env": {
+    "DEVELOPER_DIR": "/Applications/Xcode.app/Contents/Developer"
+  },
+  "terminal.integrated.env.osx": {
+    "DEVELOPER_DIR": "/Applications/Xcode.app/Contents/Developer"
+  },
+  "files.watcherExclude": {
+    "**/.tooling/**": true
+  },
+  "search.exclude": {
+    "**/.tooling": true
+  }
+}

@@ -32,17 +32,15 @@ class _N1AppState extends State<N1App> {
             : _roleHome(authenticatedRole!),
       );
 
-  Widget _roleHome(AppRole role) => switch (role) {
-        AppRole.driver => DriverShell(
-            onThemeChanged: () => setState(
-              () => mode =
-                  mode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light,
-            ),
-            onLogout: _switchRole,
-          ),
-        AppRole.tripAdviser => TripAdviserDashboard(onSwitchRole: _switchRole),
-        AppRole.fuelStockManager =>
-          FuelStockManagerDashboard(onSwitchRole: _switchRole),
-        AppRole.ceo => CeoDashboard(onSwitchRole: _switchRole),
-      };
+  void _toggleTheme() => setState(
+      () => mode = mode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light);
+
+  Widget _roleHome(AppRole role) => role == AppRole.driver
+      ? DriverShell(onThemeChanged: _toggleTheme, onLogout: _switchRole)
+      : RoleShell(
+          key: ValueKey(role),
+          role: role,
+          onSwitchRole: _switchRole,
+          onThemeChanged: _toggleTheme,
+        );
 }

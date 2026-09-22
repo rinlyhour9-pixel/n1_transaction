@@ -1,105 +1,440 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_spacing.dart';
+import 'package:flutter/services.dart';
 import '../../core/theme/app_colors.dart';
-import '../../shared/widgets/ui_components.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({
     super.key,
     required this.onThemeChanged,
     this.onLogout,
+    this.name = 'Dara Sok',
+    this.accountLabel = 'Driver ID · DR-001',
+    this.isDriver = true,
   });
   final VoidCallback onThemeChanged;
   final VoidCallback? onLogout;
+  final String name, accountLabel;
+  final bool isDriver;
+
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Profile')),
-        body: ListView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          children: [
-            const Center(
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor: AppColors.navy,
-                    child: Text(
-                      'DS',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 25,
-                        fontWeight: FontWeight.w800,
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  late String name = widget.name;
+
+  Future<void> _editProfile() async {
+    var editedName = name;
+    final formKey = GlobalKey<FormState>();
+    final updated = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Personal information'),
+        content: Form(
+          key: formKey,
+          child: TextFormField(
+            initialValue: name,
+            onChanged: (value) => editedName = value,
+            autofocus: true,
+            textCapitalization: TextCapitalization.words,
+            decoration: const InputDecoration(labelText: 'Full name'),
+            validator: (value) => value == null || value.trim().isEmpty
+                ? 'Enter your name'
+                : null,
+          ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
+          FilledButton(
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  Navigator.pop(context, editedName.trim());
+                }
+              },
+              child: const Text('Save')),
+        ],
+      ),
+    );
+    if (mounted && updated != null) setState(() => name = updated);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final muted = dark ? Colors.white60 : const Color(0xFF677087);
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light
+          .copyWith(statusBarColor: Colors.transparent),
+      child: Scaffold(
+        backgroundColor:
+            dark ? const Color(0xFF111C2C) : const Color(0xFFF3F7FB),
+        body: SingleChildScrollView(
+          child: Stack(
+            children: [
+              Container(
+                height: 185 + MediaQuery.paddingOf(context).top,
+                decoration: const BoxDecoration(
+                  borderRadius:
+                      BorderRadius.vertical(bottom: Radius.circular(28)),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF124B91), Color(0xFF2169B6)],
+                  ),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Stack(children: [
+                  Positioned(
+                      right: -65,
+                      bottom: -140,
+                      child: Container(
+                          width: 290,
+                          height: 290,
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white.withValues(alpha: .06)))),
+                ]),
+              ),
+              SafeArea(
+                bottom: false,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 720),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Row(children: [
+                              const Expanded(
+                                  child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Profile',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.w800)),
+                                  SizedBox(height: 4),
+                                  Text('Manage your account and preferences',
+                                      style: TextStyle(
+                                          color: Color(0xFFD4E5FA),
+                                          fontSize: 14)),
+                                ],
+                              )),
+                              const SizedBox(width: 8),
+                              IconButton.filled(
+                                tooltip: 'Edit profile',
+                                onPressed: _editProfile,
+                                style: IconButton.styleFrom(
+                                    backgroundColor:
+                                        Colors.white.withValues(alpha: .23),
+                                    foregroundColor: Colors.white,
+                                    minimumSize: const Size(44, 44)),
+                                icon: const Icon(Icons.edit_outlined),
+                              ),
+                            ]),
+                          ),
+                          const SizedBox(height: 24),
+                          _Panel(
+                              child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Row(children: [
+                              Stack(children: [
+                                CircleAvatar(
+                                    radius: 39,
+                                    backgroundColor: AppColors.navy,
+                                    child: Text(
+                                        name
+                                            .split(RegExp(r'\s+'))
+                                            .where((part) => part.isNotEmpty)
+                                            .take(2)
+                                            .map((part) => part[0])
+                                            .join(),
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.w700))),
+                                Positioned(
+                                    bottom: 1,
+                                    right: 0,
+                                    child: Container(
+                                        width: 20,
+                                        height: 20,
+                                        decoration: BoxDecoration(
+                                            color: const Color(0xFF0AB779),
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .surface,
+                                                width: 3)))),
+                              ]),
+                              const SizedBox(width: 20),
+                              Expanded(
+                                  child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                    Text(name,
+                                        style: const TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.w800)),
+                                    const SizedBox(height: 5),
+                                    Text(widget.accountLabel,
+                                        style: TextStyle(
+                                            color: muted, fontSize: 14)),
+                                    const SizedBox(height: 10),
+                                    Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 7),
+                                        decoration: BoxDecoration(
+                                            color: const Color(0xFF0AB779)
+                                                .withValues(alpha: .10),
+                                            borderRadius:
+                                                BorderRadius.circular(12)),
+                                        child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                  widget.isDriver
+                                                      ? Icons
+                                                          .local_shipping_outlined
+                                                      : Icons
+                                                          .verified_user_outlined,
+                                                  color:
+                                                      const Color(0xFF009568),
+                                                  size: 19),
+                                              const SizedBox(width: 7),
+                                              Flexible(
+                                                  child: Text(
+                                                      widget.isDriver
+                                                          ? 'Active Driver'
+                                                          : 'Active account',
+                                                      style: const TextStyle(
+                                                          color:
+                                                              Color(0xFF009568),
+                                                          fontWeight: FontWeight
+                                                              .w600))),
+                                            ])),
+                                  ])),
+                            ]),
+                          )),
+                          if (widget.isDriver) ...[
+                            const SizedBox(height: 12),
+                            const _Panel(
+                                child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 2),
+                              child: Column(children: [
+                                _Detail(
+                                    icon: Icons.phone_outlined,
+                                    label: 'Phone',
+                                    value: '+855 12 345 678'),
+                                Divider(height: 1),
+                                _Detail(
+                                    icon: Icons.badge_outlined,
+                                    label: 'License number',
+                                    value: 'KHM-DL-104293'),
+                                Divider(height: 1),
+                                _Detail(
+                                    icon: Icons.local_shipping_outlined,
+                                    label: 'Assigned vehicle',
+                                    value: 'PP 3A-1234'),
+                              ]),
+                            )),
+                          ],
+                          const SizedBox(height: 20),
+                          Text('Settings',
+                              style: TextStyle(
+                                  color: muted,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16)),
+                          const SizedBox(height: 9),
+                          _Menu(
+                              icon: Icons.person_outline,
+                              label: 'Personal information',
+                              subtitle: 'Update your personal details',
+                              color: const Color(0xFF0759AA),
+                              onTap: _editProfile),
+                          const _Menu(
+                              icon: Icons.lock_outline,
+                              label: 'Change password',
+                              subtitle: 'Keep your account secure',
+                              color: Color(0xFF009568)),
+                          const _Menu(
+                              icon: Icons.language,
+                              label: 'Language',
+                              subtitle: 'Select your preferred language',
+                              color: Color(0xFF7131D5),
+                              detail: 'English'),
+                          _Menu(
+                              icon: Icons.dark_mode_outlined,
+                              label: 'Toggle theme',
+                              subtitle: 'Switch between light and dark mode',
+                              color: const Color(0xFFE79300),
+                              onTap: widget.onThemeChanged),
+                          const _Menu(
+                              icon: Icons.help_outline,
+                              label: 'Help & support',
+                              subtitle: 'Get help or contact our team',
+                              color: Color(0xFFED263B)),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
+                                onPressed: () =>
+                                    _logout(context, widget.onLogout),
+                                icon: const Icon(Icons.logout),
+                                label: const Text('Log out'),
+                                style: OutlinedButton.styleFrom(
+                                    foregroundColor: const Color(0xFFFF3038),
+                                    minimumSize: const Size.fromHeight(48),
+                                    side: const BorderSide(
+                                        color: Color(0xFFFF3038)),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(18))),
+                              )),
+                        ],
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Dara Sok',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
-                  ),
-                  Text(
-                    'Driver ID · DR-001',
-                    style: TextStyle(color: AppColors.muted),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 28),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  children: const [
-                    InfoRow(
-                      icon: Icons.phone_outlined,
-                      label: 'Phone',
-                      value: '+855 12 345 678',
-                    ),
-                    Divider(height: 1),
-                    InfoRow(
-                      icon: Icons.badge_outlined,
-                      label: 'License number',
-                      value: 'KHM-DL-104293',
-                    ),
-                    Divider(height: 1),
-                    InfoRow(
-                      icon: Icons.local_shipping_outlined,
-                      label: 'Assigned vehicle',
-                      value: 'PP 3A-1234',
-                    ),
-                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            _Menu(icon: Icons.person_outline, label: 'Personal information'),
-            _Menu(icon: Icons.lock_outline, label: 'Change password'),
-            _Menu(
-              icon: Icons.language_outlined,
-              label: 'Language',
-              detail: 'English',
-            ),
-            _Menu(
-              icon: Icons.dark_mode_outlined,
-              label: 'Toggle theme',
-              onTap: onThemeChanged,
-            ),
-            _Menu(icon: Icons.help_outline, label: 'Help & support'),
-            const SizedBox(height: 16),
-            OutlinedButton.icon(
-              onPressed: () => _logout(context, onLogout),
-              icon: const Icon(Icons.logout, color: AppColors.error),
-              label: const Text(
-                'Log out',
-                style: TextStyle(color: AppColors.error),
-              ),
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(52),
-                side: const BorderSide(color: AppColors.error),
-              ),
-            ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Panel extends StatelessWidget {
+  const _Panel({required this.child});
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? const Color(0xFF1B2B40)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+              color: Theme.of(context).dividerColor.withValues(alpha: .06)),
+          boxShadow: [
+            BoxShadow(
+                color: const Color(0xFF264D78).withValues(alpha: .035),
+                blurRadius: 18,
+                offset: const Offset(0, 5))
           ],
         ),
+        child: child,
+      );
+}
+
+class _IconTile extends StatelessWidget {
+  const _IconTile(this.icon, this.color);
+  final IconData icon;
+  final Color color;
+  @override
+  Widget build(BuildContext context) => Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+            color: color.withValues(alpha: .08),
+            borderRadius: BorderRadius.circular(12)),
+        child: Icon(icon, color: color, size: 24),
+      );
+}
+
+class _Detail extends StatelessWidget {
+  const _Detail({required this.icon, required this.label, required this.value});
+  final IconData icon;
+  final String label, value;
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 11),
+        child: Row(children: [
+          _IconTile(icon, const Color(0xFF0759AA)),
+          const SizedBox(width: 16),
+          Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                Text(label,
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 13)),
+                const SizedBox(height: 3),
+                Text(value,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600, fontSize: 16)),
+              ])),
+          const Icon(Icons.chevron_right, size: 21),
+        ]),
+      );
+}
+
+class _Menu extends StatelessWidget {
+  const _Menu(
+      {required this.icon,
+      required this.label,
+      required this.subtitle,
+      required this.color,
+      this.detail,
+      this.onTap});
+  final IconData icon;
+  final String label, subtitle;
+  final Color color;
+  final String? detail;
+  final VoidCallback? onTap;
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(bottom: 5),
+        child: _Panel(
+            child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              child: Row(children: [
+                _IconTile(icon, color),
+                const SizedBox(width: 14),
+                Expanded(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                      Text(label,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w700, fontSize: 14)),
+                      const SizedBox(height: 3),
+                      Text(subtitle,
+                          style: TextStyle(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                              fontSize: 12)),
+                    ])),
+                if (detail != null) ...[
+                  const SizedBox(width: 6),
+                  Text(detail!,
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 12))
+                ],
+                const SizedBox(width: 6),
+                const Icon(Icons.chevron_right, size: 21),
+              ]),
+            ),
+          ),
+        )),
       );
 }
 
@@ -107,45 +442,18 @@ void _logout(BuildContext context, VoidCallback? onLogout) => showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Log out?'),
-        content:
-            const Text('You will need to sign in again to access your trips.'),
+        content: const Text(
+            'You will need to sign in again to access your workspace.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel')),
           FilledButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              onLogout?.call();
-            },
-            child: const Text('Log out'),
-          ),
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                onLogout?.call();
+              },
+              child: const Text('Log out')),
         ],
       ),
     );
-
-class _Menu extends StatelessWidget {
-  const _Menu({
-    required this.icon,
-    required this.label,
-    this.detail,
-    this.onTap,
-  });
-  final IconData icon;
-  final String label;
-  final String? detail;
-  final VoidCallback? onTap;
-  @override
-  Widget build(BuildContext context) => Card(
-        child: ListTile(
-          onTap: onTap,
-          leading: Icon(icon, color: AppColors.navy),
-          title:
-              Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
-          trailing: detail == null
-              ? const Icon(Icons.chevron_right)
-              : Text(detail!, style: const TextStyle(color: AppColors.muted)),
-        ),
-      );
-}

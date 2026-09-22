@@ -3,6 +3,7 @@ import '../../core/constants/app_spacing.dart';
 import '../../core/theme/app_colors.dart';
 import '../../shared/models/trip.dart';
 import '../../shared/widgets/ui_components.dart';
+import '../../shared/widgets/trip_presentation.dart';
 import '../fuel/fuel_screens.dart';
 import '../profile/profile_screen.dart';
 import '../trips/trip_screens.dart';
@@ -21,6 +22,7 @@ class _DriverShellState extends State<DriverShell> {
   Widget build(BuildContext context) {
     final pages = [
       Dashboard(
+        onProfile: () => setState(() => index = 3),
         onTrip: () => Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const TripDetailScreen()),
@@ -50,94 +52,40 @@ class _DriverShellState extends State<DriverShell> {
         );
         return Scaffold(
           body: SafeArea(
-            child: wide
-                ? Row(
-                    children: [
-                      NavigationRail(
-                        selectedIndex: index,
-                        onDestinationSelected: (value) =>
-                            setState(() => index = value),
-                        labelType: NavigationRailLabelType.all,
-                        leading: const Padding(
-                          padding: EdgeInsets.only(bottom: 22, top: 10),
-                          child: _N1RailMark(),
-                        ),
-                        destinations: const [
-                          NavigationRailDestination(
-                              icon: Icon(Icons.home_outlined),
-                              selectedIcon: Icon(Icons.home),
-                              label: Text('Home')),
-                          NavigationRailDestination(
-                              icon: Icon(Icons.local_shipping_outlined),
-                              selectedIcon: Icon(Icons.local_shipping),
-                              label: Text('Trips')),
-                          NavigationRailDestination(
-                              icon: Icon(Icons.local_gas_station_outlined),
-                              selectedIcon: Icon(Icons.local_gas_station),
-                              label: Text('Fuel')),
-                          NavigationRailDestination(
-                              icon: Icon(Icons.person_outline),
-                              selectedIcon: Icon(Icons.person),
-                              label: Text('Profile')),
-                        ],
-                      ),
-                      const VerticalDivider(width: 1),
-                      Expanded(
-                          child: Center(
-                              child: ConstrainedBox(
-                                  constraints:
-                                      const BoxConstraints(maxWidth: 1120),
-                                  child: page))),
-                    ],
-                  )
-                : Center(
-                    child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 720),
-                        child: page)),
+            top: index != 3 && index != 0,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: wide ? 1120 : 720),
+                child: page,
+              ),
+            ),
           ),
-          bottomNavigationBar: wide
-              ? null
-              : NavigationBar(
-                  selectedIndex: index,
-                  onDestinationSelected: (value) =>
-                      setState(() => index = value),
-                  destinations: const [
-                    NavigationDestination(
-                        icon: Icon(Icons.home_outlined),
-                        selectedIcon: Icon(Icons.home),
-                        label: 'Home'),
-                    NavigationDestination(
-                        icon: Icon(Icons.local_shipping_outlined),
-                        selectedIcon: Icon(Icons.local_shipping),
-                        label: 'Trips'),
-                    NavigationDestination(
-                        icon: Icon(Icons.local_gas_station_outlined),
-                        selectedIcon: Icon(Icons.local_gas_station),
-                        label: 'Fuel'),
-                    NavigationDestination(
-                        icon: Icon(Icons.person_outline),
-                        selectedIcon: Icon(Icons.person),
-                        label: 'Profile'),
-                  ],
-                ),
+          bottomNavigationBar: AppNavigationBar(
+            selectedIndex: index,
+            onDestinationSelected: (value) => setState(() => index = value),
+            destinations: const [
+              NavigationDestination(
+                  icon: Icon(Icons.home_outlined),
+                  selectedIcon: Icon(Icons.home),
+                  label: 'Home'),
+              NavigationDestination(
+                  icon: Icon(Icons.local_shipping_outlined),
+                  selectedIcon: Icon(Icons.local_shipping),
+                  label: 'Trips'),
+              NavigationDestination(
+                  icon: Icon(Icons.local_gas_station_outlined),
+                  selectedIcon: Icon(Icons.local_gas_station),
+                  label: 'Fuel'),
+              NavigationDestination(
+                  icon: Icon(Icons.person_outline),
+                  selectedIcon: Icon(Icons.person),
+                  label: 'Profile'),
+            ],
+          ),
         );
       },
     );
   }
-}
-
-class _N1RailMark extends StatelessWidget {
-  const _N1RailMark();
-  @override
-  Widget build(BuildContext context) => Container(
-        width: 42,
-        height: 42,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-            color: AppColors.navy, borderRadius: BorderRadius.circular(13)),
-        child: const Text('N1',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
-      );
 }
 
 class Dashboard extends StatelessWidget {
@@ -146,65 +94,23 @@ class Dashboard extends StatelessWidget {
     required this.onTrip,
     required this.onFuel,
     required this.onNotifications,
+    required this.onProfile,
   });
-  final VoidCallback onTrip, onFuel, onNotifications;
+  final VoidCallback onTrip, onFuel, onNotifications, onProfile;
   @override
   Widget build(BuildContext context) => RefreshIndicator(
         onRefresh: () async =>
             await Future<void>.delayed(const Duration(milliseconds: 700)),
-        child: ListView(
+        child: DashboardContent(
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
-            Row(
-              children: [
-                const CircleAvatar(
-                  radius: 24,
-                  backgroundColor: AppColors.navy,
-                  child: Text(
-                    'DS',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Good morning,',
-                        style: TextStyle(color: AppColors.muted),
-                      ),
-                      Row(
-                        children: const [
-                          Flexible(
-                            child: Text(
-                              'Dara Sok · DR-001',
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w800,
-                                fontSize: 17,
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          StatusBadge(
-                            label: 'On duty',
-                            color: AppColors.success,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  onPressed: onNotifications,
-                  icon: const Badge(child: Icon(Icons.notifications_outlined)),
-                  tooltip: 'Notifications',
-                ),
-              ],
+            WorkspaceHeader(
+              name: 'Dara Sok',
+              workspace: 'Driver operations',
+              icon: Icons.local_shipping_outlined,
+              detail: 'DR-001 · On duty',
+              onNotifications: onNotifications,
+              onProfile: onProfile,
             ),
             const SizedBox(height: 28),
             const SectionHeader(title: "Today's assigned trip"),
@@ -276,146 +182,21 @@ class Dashboard extends StatelessWidget {
 class _TripCard extends StatelessWidget {
   const _TripCard({required this.onTap});
   final VoidCallback onTap;
-
   @override
-  Widget build(BuildContext context) => Card(
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(18),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 42,
-                      height: 42,
-                      decoration: BoxDecoration(
-                          color: AppColors.blue.withValues(alpha: .12),
-                          borderRadius: BorderRadius.circular(13)),
-                      child: const Icon(Icons.local_shipping_outlined,
-                          color: AppColors.blue),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Ready to depart',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.w900)),
-                            Text('${demoTrip.id} · Starts at 08:30 AM',
-                                style: const TextStyle(
-                                    color: AppColors.muted, fontSize: 12))
-                          ]),
-                    ),
-                    const StatusBadge(label: 'Assigned'),
-                  ],
-                ),
-                const SizedBox(height: 22),
-                const _TripRoute(),
-                const SizedBox(height: 18),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  decoration: BoxDecoration(
-                      color: AppColors.background,
-                      borderRadius: BorderRadius.circular(12)),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.inventory_2_outlined,
-                          size: 19, color: AppColors.muted),
-                      const SizedBox(width: 8),
-                      Expanded(
-                          child: Text(
-                              '${demoTrip.material} · ${demoTrip.quantity}',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w700))),
-                      const Icon(Icons.straighten_outlined,
-                          size: 18, color: AppColors.muted),
-                      const SizedBox(width: 5),
-                      Text(demoTrip.distance,
-                          style: const TextStyle(
-                              color: AppColors.muted,
-                              fontWeight: FontWeight.w700)),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                PrimaryButton(
-                    label: 'Start trip',
-                    onPressed: onTap,
-                    icon: Icons.play_arrow_rounded),
-              ],
-            ),
-          ),
-        ),
-      );
-}
-
-class _TripRoute extends StatelessWidget {
-  const _TripRoute();
-  @override
-  Widget build(BuildContext context) => const Column(
-        children: [
-          _RouteStop(
-              icon: Icons.radio_button_checked,
-              color: AppColors.blue,
-              label: 'Pickup',
-              location: 'N1 Cement Factory',
-              detail: '08:30 AM · National Road 5'),
-          Padding(
-              padding: EdgeInsets.only(left: 9),
-              child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: SizedBox(
-                      height: 24,
-                      child:
-                          VerticalDivider(width: 1, color: AppColors.muted)))),
-          _RouteStop(
-              icon: Icons.location_on,
-              color: AppColors.error,
-              label: 'Delivery',
-              location: 'Construction Site A',
-              detail: 'Estimated 10:00 AM'),
-        ],
-      );
-}
-
-class _RouteStop extends StatelessWidget {
-  const _RouteStop(
-      {required this.icon,
-      required this.color,
-      required this.label,
-      required this.location,
-      required this.detail});
-  final IconData icon;
-  final Color color;
-  final String label, location, detail;
-  @override
-  Widget build(BuildContext context) =>
-      Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(icon, size: 20, color: color),
-        const SizedBox(width: 11),
-        Expanded(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label.toUpperCase(),
-              style: const TextStyle(
-                  color: AppColors.muted,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: .7)),
-          const SizedBox(height: 2),
-          Text(location, style: const TextStyle(fontWeight: FontWeight.w800)),
-          const SizedBox(height: 2),
-          Text(detail,
-              style: const TextStyle(color: AppColors.muted, fontSize: 12))
-        ]))
+  Widget build(BuildContext context) => Column(children: [
+        TripSummaryCard(
+            id: demoTrip.id,
+            pickup: demoTrip.pickup,
+            destination: demoTrip.destination,
+            material: '${demoTrip.material} · ${demoTrip.quantity}',
+            schedule: demoTrip.time,
+            distance: demoTrip.distance,
+            onTap: onTap),
+        const SizedBox(height: 12),
+        PrimaryButton(
+            label: 'Start trip',
+            onPressed: onTap,
+            icon: Icons.play_arrow_rounded),
       ]);
 }
 

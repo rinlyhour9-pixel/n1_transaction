@@ -207,17 +207,6 @@ class RoleSelectionScreen extends StatelessWidget {
         appBar: AppBar(
           leading: BackButton(onPressed: onBack),
           title: const _BrandMark(),
-          actions: const [
-            Padding(
-              padding: EdgeInsets.only(right: 20),
-              child: Center(
-                  child: Text('Step 1 of 3',
-                      style: TextStyle(
-                          color: AppColors.muted,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700))),
-            ),
-          ],
         ),
         body: SafeArea(
           top: false,
@@ -260,8 +249,12 @@ class RoleSelectionScreen extends StatelessWidget {
                               gridDelegate:
                                   SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: columns,
-                                childAspectRatio: columns == 1 ? 2.35 : 1.75,
-                                mainAxisSpacing: 14,
+                                mainAxisExtent: 120 +
+                                    (MediaQuery.textScalerOf(context)
+                                                .scale(17) -
+                                            17) *
+                                        4,
+                                mainAxisSpacing: 10,
                                 crossAxisSpacing: 14,
                               ),
                             ),
@@ -306,7 +299,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Timer? _advanceTimer;
   var page = 0;
 
-  static const _slideDuration = Duration(milliseconds: 1200);
+  static const _slideDuration = Duration(milliseconds: 800);
 
   @override
   void initState() {
@@ -379,17 +372,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       appBar: AppBar(
         leading: BackButton(onPressed: _goBack),
         title: const _BrandMark(),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 20),
-            child: Center(
-                child: Text('Step 2 of 3',
-                    style: TextStyle(
-                        color: AppColors.muted,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700))),
-          ),
-        ],
       ),
       body: SafeArea(
         top: false,
@@ -410,36 +392,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         _scheduleAdvance();
                       },
                       itemBuilder: (context, index) => pages[index],
-                    ),
-                  ),
-                  Semantics(
-                    label: 'Onboarding page ${page + 1} of 3',
-                    child: Column(
-                      children: [
-                        Text('Page ${page + 1} of 3',
-                            style: const TextStyle(
-                                color: AppColors.muted,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700)),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            3,
-                            (index) => AnimatedContainer(
-                              duration: const Duration(milliseconds: 220),
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
-                              height: 7,
-                              width: page == index ? 25 : 7,
-                              decoration: BoxDecoration(
-                                  color: page == index
-                                      ? widget.role.color
-                                      : AppColors.muted.withValues(alpha: .25),
-                                  borderRadius: BorderRadius.circular(20)),
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                   const SizedBox(height: 22),
@@ -496,17 +448,6 @@ class _LoginScreenState extends State<LoginScreen> {
         appBar: AppBar(
           leading: BackButton(onPressed: widget.onBack),
           title: const _BrandMark(),
-          actions: const [
-            Padding(
-              padding: EdgeInsets.only(right: 20),
-              child: Center(
-                  child: Text('Step 3 of 3',
-                      style: TextStyle(
-                          color: AppColors.muted,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700))),
-            ),
-          ],
         ),
         body: SafeArea(
           top: false,
@@ -680,7 +621,8 @@ class _RoleCardState extends State<_RoleCard> {
               onFocusChange: (value) => setState(() => focused = value),
               borderRadius: BorderRadius.circular(18),
               child: Padding(
-                padding: const EdgeInsets.all(18),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 child: Row(
                   children: [
                     _RoleIcon(role: role),

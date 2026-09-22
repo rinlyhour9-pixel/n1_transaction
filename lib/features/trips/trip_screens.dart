@@ -3,6 +3,7 @@ import '../../core/constants/app_spacing.dart';
 import '../../core/theme/app_colors.dart';
 import '../../shared/models/trip.dart';
 import '../../shared/widgets/ui_components.dart';
+import '../../shared/widgets/trip_presentation.dart';
 
 class TripsScreen extends StatelessWidget {
   const TripsScreen({super.key});
@@ -55,28 +56,16 @@ class _TripListItem extends StatelessWidget {
   final VoidCallback? onTap;
   final bool completed;
   @override
-  Widget build(BuildContext context) => Card(
-        child: ListTile(
-          onTap: onTap,
-          contentPadding: const EdgeInsets.all(15),
-          leading: Icon(
-            completed ? Icons.check_circle : Icons.local_shipping_outlined,
-            color: completed ? AppColors.success : AppColors.blue,
-          ),
-          title: Text(
-            completed ? 'N1-2027' : demoTrip.id,
-            style: const TextStyle(fontWeight: FontWeight.w800),
-          ),
-          subtitle: Text(
-            completed
-                ? 'Factory B to Warehouse C'
-                : '${demoTrip.pickup} to ${demoTrip.destination}',
-          ),
-          trailing: StatusBadge(
-            label: completed ? 'Completed' : 'Assigned',
-            color: completed ? AppColors.success : AppColors.blue,
-          ),
-        ),
+  Widget build(BuildContext context) => TripSummaryCard(
+        id: completed ? 'N1-2027' : demoTrip.id,
+        pickup: completed ? 'Factory B' : demoTrip.pickup,
+        destination: completed ? 'Warehouse C' : demoTrip.destination,
+        material:
+            completed ? null : '${demoTrip.material} · ${demoTrip.quantity}',
+        schedule: completed ? null : demoTrip.time,
+        distance: completed ? null : demoTrip.distance,
+        completed: completed,
+        onTap: onTap,
       );
 }
 
@@ -85,74 +74,129 @@ class TripDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('Trip details')),
-        body: ListView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          children: [
-            Row(
-              children: [
-                Text(
-                  demoTrip.id,
-                  style: Theme.of(
-                    context,
-                  )
-                      .textTheme
-                      .headlineSmall
-                      ?.copyWith(fontWeight: FontWeight.w900),
-                ),
-                const Spacer(),
-                const StatusBadge(label: 'Assigned'),
-              ],
-            ),
-            const SizedBox(height: 20),
-            const _MapPlaceholder(),
-            const SizedBox(height: 20),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: const Column(
-                  children: [
-                    InfoRow(
-                      icon: Icons.local_shipping_outlined,
-                      label: 'Vehicle',
-                      value: 'PP 3A-1234',
-                    ),
-                    Divider(height: 1),
-                    InfoRow(
-                      icon: Icons.inventory_2_outlined,
-                      label: 'Material',
-                      value: 'Cement · 25 Tons',
-                    ),
-                    Divider(height: 1),
-                    InfoRow(
-                      icon: Icons.straighten_outlined,
-                      label: 'Estimated distance',
-                      value: '42 km',
-                    ),
-                  ],
-                ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Center(
+              child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 680),
+            child: Column(children: [
+              Container(
+                padding: const EdgeInsets.all(22),
+                decoration: BoxDecoration(
+                    color: const Color(0xFF202020),
+                    borderRadius: BorderRadius.circular(32)),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                          child: Container(
+                              width: 36,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                  color: Colors.white30,
+                                  borderRadius: BorderRadius.circular(4)))),
+                      const SizedBox(height: 24),
+                      Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                  const Text('Trip ID',
+                                      style: TextStyle(
+                                          color: Colors.white54, fontSize: 12)),
+                                  const SizedBox(height: 7),
+                                  Text(demoTrip.id,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.w600)),
+                                ])),
+                            const TripStatusPill(label: 'Assigned', dark: true),
+                          ]),
+                      const SizedBox(height: 26),
+                      const TripProgressLine(dark: true),
+                      const SizedBox(height: 24),
+                      Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                                child: TripFact(
+                                    label: demoTrip.time,
+                                    value: demoTrip.pickup,
+                                    dark: true)),
+                            const SizedBox(width: 16),
+                            Expanded(
+                                child: TripFact(
+                                    label: 'Estimated 10:00 AM',
+                                    value: demoTrip.destination,
+                                    dark: true)),
+                          ]),
+                      const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: Divider(color: Colors.white10, height: 1)),
+                      Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                  TripFact(
+                                      label: 'Material',
+                                      value: demoTrip.material,
+                                      dark: true),
+                                  const SizedBox(height: 22),
+                                  TripFact(
+                                      label: 'Quantity',
+                                      value: demoTrip.quantity,
+                                      dark: true),
+                                  const SizedBox(height: 22),
+                                  TripFact(
+                                      label: 'Estimated distance',
+                                      value: demoTrip.distance,
+                                      dark: true),
+                                ])),
+                            const SizedBox(width: 12),
+                            const Flexible(child: CargoArtwork(size: 155)),
+                          ]),
+                      const SizedBox(height: 24),
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: .05),
+                            borderRadius: BorderRadius.circular(24)),
+                        child: Row(children: [
+                          Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                  color: tripAccent.withValues(alpha: .15),
+                                  shape: BoxShape.circle),
+                              child: const Icon(Icons.local_shipping_outlined,
+                                  color: tripAccent)),
+                          const SizedBox(width: 12),
+                          Expanded(
+                              child: TripFact(
+                                  label: 'Assigned vehicle',
+                                  value: demoTrip.vehicle,
+                                  dark: true)),
+                          const Icon(Icons.verified_outlined,
+                              color: Colors.white54, size: 22),
+                        ]),
+                      ),
+                    ]),
               ),
-            ),
-            const SizedBox(height: 20),
-            const _LocationCard(
-              icon: Icons.radio_button_checked,
-              title: 'Pickup',
-              value: 'N1 Cement Factory',
-              color: AppColors.blue,
-            ),
-            const SizedBox(height: 12),
-            const _LocationCard(
-              icon: Icons.location_on,
-              title: 'Delivery',
-              value: 'Construction Site A',
-              color: AppColors.error,
-            ),
-            const SizedBox(height: 24),
-            PrimaryButton(
-              label: 'Start trip',
-              icon: Icons.play_arrow,
-              onPressed: () => _confirmStart(context),
-            ),
-          ],
+              const SizedBox(height: 20),
+              PrimaryButton(
+                  label: 'Start trip',
+                  icon: Icons.play_arrow,
+                  onPressed: () => _confirmStart(context)),
+            ]),
+          )),
         ),
       );
 }
@@ -193,35 +237,6 @@ void _confirmStart(BuildContext context) => showModalBottomSheet(
       ),
     );
 
-class _MapPlaceholder extends StatelessWidget {
-  const _MapPlaceholder();
-  @override
-  Widget build(BuildContext context) => Container(
-        height: 190,
-        decoration: BoxDecoration(
-          color: const Color(0xFFE8F0F4),
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: const Stack(
-          children: [
-            Center(
-              child: Icon(Icons.map_outlined, size: 60, color: AppColors.navy),
-            ),
-            Positioned(
-              left: 36,
-              bottom: 38,
-              child: Icon(Icons.radio_button_checked, color: AppColors.blue),
-            ),
-            Positioned(
-              right: 38,
-              top: 35,
-              child: Icon(Icons.location_on, color: AppColors.error, size: 30),
-            ),
-          ],
-        ),
-      );
-}
-
 class _LocationCard extends StatelessWidget {
   const _LocationCard({
     required this.icon,
@@ -261,114 +276,236 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
     'Unloading',
     'Completed',
   ];
+  void _advance() {
+    if (step == 3) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (_) => const LoadingScreen()));
+    } else {
+      setState(() => step = (step + 1).clamp(0, labels.length - 1));
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('Active trip')),
-        body: ListView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          children: [
-            Text(
-              demoTrip.id,
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
-            ),
-            const SizedBox(height: 14),
-            const _MapPlaceholder(),
-            const SizedBox(height: 22),
-            const SectionHeader(title: 'Trip progress'),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: List.generate(
-                    labels.length,
-                    (i) => _TimelineRow(
-                      label: labels[i],
-                      current: i == step,
-                      done: i < step,
-                      last: i == labels.length - 1,
+        bottomNavigationBar: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+            child: Center(
+                heightFactor: 1,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 680),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 54,
+                    child: FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                          backgroundColor: tripAccent,
+                          foregroundColor: const Color(0xFF202020),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18))),
+                      onPressed: _advance,
+                      icon: const Icon(Icons.arrow_forward),
+                      label: Text(
+                          step < 2
+                              ? 'Arrived at pickup'
+                              : step == 2
+                                  ? 'Start loading'
+                                  : step == 3
+                                      ? 'Confirm loading'
+                                      : 'Continue trip',
+                          style: const TextStyle(fontWeight: FontWeight.w700)),
                     ),
                   ),
-                ),
-              ),
+                )),
+          ),
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+          child: Center(
+              child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 680),
+            child: Container(
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                  color: const Color(0xFF202020),
+                  borderRadius: BorderRadius.circular(32)),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(children: [
+                      Expanded(
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                            const Text('Trip ID',
+                                style: TextStyle(
+                                    color: Colors.white54, fontSize: 12)),
+                            const SizedBox(height: 7),
+                            Text(demoTrip.id,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.w600)),
+                          ])),
+                      const TripStatusPill(label: 'In progress', dark: true),
+                    ]),
+                    const SizedBox(height: 20),
+                    Row(children: [
+                      Expanded(
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                            Semantics(
+                                liveRegion: true,
+                                child: Text(labels[step],
+                                    style: const TextStyle(
+                                        color: tripAccent,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600))),
+                            const SizedBox(height: 8),
+                            Text('${demoTrip.material} · ${demoTrip.quantity}',
+                                style: const TextStyle(
+                                    color: Colors.white70, fontSize: 14)),
+                            const SizedBox(height: 5),
+                            Text(demoTrip.distance,
+                                style: const TextStyle(
+                                    color: Colors.white54, fontSize: 12)),
+                          ])),
+                      const SizedBox(width: 12),
+                      const CargoArtwork(size: 88),
+                    ]),
+                    const SizedBox(height: 22),
+                    Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                              child: TripFact(
+                                  label: 'Pickup',
+                                  value: demoTrip.pickup,
+                                  dark: true)),
+                          const Padding(
+                              padding: EdgeInsets.fromLTRB(8, 20, 12, 0),
+                              child: Icon(Icons.east,
+                                  size: 18, color: tripAccent)),
+                          Expanded(
+                              child: TripFact(
+                                  label: 'Delivery',
+                                  value: demoTrip.destination,
+                                  dark: true)),
+                        ]),
+                    const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 22),
+                        child: Divider(color: Colors.white10, height: 1)),
+                    const Text('Trip progress',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 20),
+                    ...List.generate(
+                        labels.length,
+                        (i) => _TimelineRow(
+                            label: labels[i],
+                            current: i == step,
+                            done: i < step,
+                            last: i == labels.length - 1)),
+                    const SizedBox(height: 22),
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: .05),
+                          borderRadius: BorderRadius.circular(24)),
+                      child: Row(children: [
+                        const CircleAvatar(
+                            backgroundColor: Color(0xFF433029),
+                            child: Icon(Icons.local_shipping_outlined,
+                                color: tripAccent)),
+                        const SizedBox(width: 12),
+                        Expanded(
+                            child: TripFact(
+                                label: 'Assigned vehicle',
+                                value: demoTrip.vehicle,
+                                dark: true)),
+                      ]),
+                    ),
+                  ]),
             ),
-            const SizedBox(height: 24),
-            PrimaryButton(
-              label: step < 3
-                  ? 'Arrived at pickup'
-                  : step < 4
-                      ? 'Confirm loading'
-                      : 'Continue trip',
-              icon: Icons.arrow_forward,
-              onPressed: () {
-                if (step == 3) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoadingScreen()),
-                  );
-                } else {
-                  setState(() => step = (step + 1).clamp(0, labels.length - 1));
-                }
-              },
-            ),
-          ],
+          )),
         ),
       );
 }
 
 class _TimelineRow extends StatelessWidget {
-  const _TimelineRow({
-    required this.label,
-    required this.current,
-    required this.done,
-    required this.last,
-  });
+  const _TimelineRow(
+      {required this.label,
+      required this.current,
+      required this.done,
+      required this.last});
   final String label;
   final bool current, done, last;
   @override
-  Widget build(BuildContext context) {
-    final color = done || current ? AppColors.success : AppColors.muted;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: done ? AppColors.success : Colors.transparent,
-                border: Border.all(color: color, width: 2),
-              ),
-              child: done
-                  ? const Icon(Icons.check, size: 16, color: Colors.white)
-                  : null,
-            ),
-            if (!last)
+  Widget build(BuildContext context) => Semantics(
+        label: '$label, ${done ? 'complete' : current ? 'current' : 'pending'}',
+        child: ExcludeSemantics(
+            child: Padding(
+          padding: EdgeInsets.only(bottom: last ? 0 : 8),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Column(children: [
               Container(
-                width: 2,
-                height: 27,
-                color: color.withValues(alpha: .5),
-              ),
-          ],
-        ),
-        const SizedBox(width: 12),
-        Padding(
-          padding: const EdgeInsets.only(top: 3),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontWeight: current ? FontWeight.w800 : FontWeight.w500,
-              color: current ? AppColors.text : AppColors.muted,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+                  width: 25,
+                  height: 25,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: done ? tripAccent : Colors.transparent,
+                      border: Border.all(
+                          color: done || current ? tripAccent : Colors.white24,
+                          width: 1.5)),
+                  child: Icon(
+                      done
+                          ? Icons.check
+                          : current
+                              ? Icons.local_shipping_outlined
+                              : Icons.circle,
+                      size: done
+                          ? 16
+                          : current
+                              ? 14
+                              : 5,
+                      color: done
+                          ? const Color(0xFF202020)
+                          : current
+                              ? tripAccent
+                              : Colors.white24)),
+              if (!last)
+                ...List.generate(
+                    3,
+                    (_) => Container(
+                        margin: const EdgeInsets.only(top: 5),
+                        width: 3,
+                        height: 3,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: done ? tripAccent : Colors.white24))),
+            ]),
+            const SizedBox(width: 14),
+            Expanded(
+                child: Padding(
+              padding: const EdgeInsets.only(top: 3),
+              child: Text(label,
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: current ? FontWeight.w700 : FontWeight.w400,
+                      color: current
+                          ? tripAccent
+                          : done
+                              ? Colors.white
+                              : Colors.white54)),
+            )),
+          ]),
+        )),
+      );
 }
 
 class LoadingScreen extends StatelessWidget {

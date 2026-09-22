@@ -3,6 +3,78 @@ import '../../core/constants/app_spacing.dart';
 import '../../core/theme/app_colors.dart';
 import '../../shared/widgets/ui_components.dart';
 import '../auth/auth_flow.dart';
+import '../profile/profile_screen.dart';
+
+class RoleShell extends StatefulWidget {
+  const RoleShell(
+      {super.key,
+      required this.role,
+      required this.onSwitchRole,
+      required this.onThemeChanged});
+  final AppRole role;
+  final VoidCallback onSwitchRole, onThemeChanged;
+
+  @override
+  State<RoleShell> createState() => _RoleShellState();
+}
+
+class _RoleShellState extends State<RoleShell> {
+  int index = 0;
+
+  void selectTab(int value) => setState(() => index = value);
+
+  @override
+  Widget build(BuildContext context) {
+    final dashboard = switch (widget.role) {
+      AppRole.tripAdviser =>
+        TripAdviserDashboard(onSwitchRole: widget.onSwitchRole),
+      AppRole.fuelStockManager =>
+        FuelStockManagerDashboard(onSwitchRole: widget.onSwitchRole),
+      AppRole.ceo => CeoDashboard(onSwitchRole: widget.onSwitchRole),
+      AppRole.driver => throw StateError('Drivers use DriverShell'),
+    };
+    final name = switch (widget.role) {
+      AppRole.tripAdviser => 'Sokha Chann',
+      AppRole.fuelStockManager => 'Rith Vichea',
+      AppRole.ceo => 'N1 Owner',
+      AppRole.driver => 'Dara Sok',
+    };
+    return Scaffold(
+      body: IndexedStack(index: index, children: [
+        dashboard,
+        Scaffold(
+          appBar: AppBar(title: const Text('Notifications')),
+          body: const Center(child: Text('No new notifications')),
+        ),
+        ProfileScreen(
+          name: name,
+          accountLabel: '${widget.role.label} · ${widget.role.demoAccount}',
+          isDriver: false,
+          onThemeChanged: widget.onThemeChanged,
+          onLogout: widget.onSwitchRole,
+        ),
+      ]),
+      bottomNavigationBar: AppNavigationBar(
+        selectedIndex: index,
+        onDestinationSelected: (value) => setState(() => index = value),
+        destinations: const [
+          NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home),
+              label: 'Home'),
+          NavigationDestination(
+              icon: Icon(Icons.notifications_outlined),
+              selectedIcon: Icon(Icons.notifications),
+              label: 'Notifications'),
+          NavigationDestination(
+              icon: Icon(Icons.person_outline),
+              selectedIcon: Icon(Icons.person),
+              label: 'Profile'),
+        ],
+      ),
+    );
+  }
+}
 
 class TripAdviserDashboard extends StatelessWidget {
   const TripAdviserDashboard({super.key, required this.onSwitchRole});
@@ -10,7 +82,6 @@ class TripAdviserDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: _roleAppBar(AppRole.tripAdviser, onSwitchRole),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () => Navigator.push(
             context,
@@ -253,7 +324,6 @@ class _FuelStockManagerDashboardState extends State<FuelStockManagerDashboard> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: _roleAppBar(AppRole.fuelStockManager, widget.onSwitchRole),
         body: _RoleContent(
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
@@ -341,7 +411,6 @@ class CeoDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: _roleAppBar(AppRole.ceo, onSwitchRole),
         body: _RoleContent(
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
@@ -426,30 +495,6 @@ class CeoDashboard extends StatelessWidget {
       );
 }
 
-PreferredSizeWidget _roleAppBar(AppRole role, VoidCallback onSwitchRole) =>
-    AppBar(
-      title: Row(
-        children: [
-          Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                  color: role.color.withValues(alpha: .13),
-                  borderRadius: BorderRadius.circular(8)),
-              child: Icon(role.icon, color: role.color, size: 17)),
-          const SizedBox(width: 9),
-          Text(role.label),
-        ],
-      ),
-      actions: [
-        IconButton(
-            onPressed: onSwitchRole,
-            tooltip: 'Switch role',
-            icon: const Icon(Icons.switch_account_outlined)),
-        const SizedBox(width: 6)
-      ],
-    );
-
 class _RoleContent extends StatelessWidget {
   const _RoleContent(
       {required this.children,
@@ -462,7 +507,7 @@ class _RoleContent extends StatelessWidget {
   Widget build(BuildContext context) => Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxWidth),
-          child: ListView(padding: padding, children: children),
+          child: DashboardContent(padding: padding, children: children),
         ),
       );
 }
@@ -472,39 +517,18 @@ class _RoleHeader extends StatelessWidget {
   final AppRole role;
   final String name;
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-        builder: (context, constraints) {
-          final compact = constraints.maxWidth < 430;
-          final badge = StatusBadge(label: role.shortLabel, color: role.color);
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CircleAvatar(
-                  radius: 23,
-                  backgroundColor: role.color,
-                  child: Text(
-                      name.split(' ').map((word) => word[0]).take(2).join(),
-                      style: const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.w800))),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Good morning,',
-                        style: TextStyle(color: AppColors.muted)),
-                    Text(name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w900)),
-                    if (compact) ...[const SizedBox(height: 7), badge],
-                  ],
-                ),
-              ),
-              if (!compact) ...[const SizedBox(width: 8), badge],
-            ],
-          );
+  Widget build(BuildContext context) => WorkspaceHeader(
+        name: name,
+        workspace: role.shortLabel,
+        icon: role.icon,
+        detail: role.label,
+        onNotifications: () {
+          final shell = context.findAncestorStateOfType<_RoleShellState>();
+          shell?.selectTab(1);
+        },
+        onProfile: () {
+          final shell = context.findAncestorStateOfType<_RoleShellState>();
+          shell?.selectTab(2);
         },
       );
 }
