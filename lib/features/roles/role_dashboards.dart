@@ -416,7 +416,7 @@ class CeoDashboard extends StatelessWidget {
           children: [
             const _RoleHeader(role: AppRole.ceo, name: 'N1 Owner'),
             const SizedBox(height: 8),
-            const Text('Live operational performance across N1 Logistic.',
+            const Text('Live operational performance across N1 TRANSPORTATION.',
                 style: TextStyle(color: AppColors.muted)),
             const SizedBox(height: 24),
             const SectionHeader(title: 'Business overview'),

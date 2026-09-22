@@ -5,20 +5,53 @@ import '../../shared/models/trip.dart';
 import '../../shared/widgets/ui_components.dart';
 import '../../shared/widgets/trip_presentation.dart';
 
-class TripsScreen extends StatelessWidget {
-  const TripsScreen({super.key});
+class TripsScreen extends StatefulWidget {
+  const TripsScreen(
+      {super.key, this.initialFilter = 'All', this.title = 'My trips'});
+  final String initialFilter, title;
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('My trips')),
-        body: ListView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          children: [
-            const TextField(
-              decoration: InputDecoration(
-                prefixIcon: Icon(Icons.search),
-                hintText: 'Search trip ID or destination',
-              ),
+  State<TripsScreen> createState() => _TripsScreenState();
+}
+
+class _TripsScreenState extends State<TripsScreen> {
+  late String filter = widget.initialFilter;
+  String query = '';
+  bool matches(String text) =>
+      text.toLowerCase().contains(query.trim().toLowerCase());
+  @override
+  Widget build(BuildContext context) {
+    final current = filter != 'Completed' &&
+        matches('${demoTrip.id} ${demoTrip.pickup} ${demoTrip.destination}');
+    final completed =
+        filter != 'Today' && matches('N1-2027 Factory B Warehouse C');
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.title)),
+      body: ListView(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        children: [
+          TextField(
+            onChanged: (value) => setState(() => query = value),
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Icons.search),
+              hintText: 'Search trip ID or destination',
             ),
+          ),
+          const SizedBox(height: 14),
+          Wrap(spacing: 8, children: [
+            for (final value in ['All', 'Today', 'Completed'])
+              ChoiceChip(
+                  label: Text(value),
+                  selected: filter == value,
+                  onSelected: (_) => setState(() => filter = value)),
+          ]),
+          if (!current && !completed)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 48),
+              child: EmptyState(
+                  title: 'No trips found',
+                  message: 'Try another trip ID or destination.'),
+            ),
+          if (current) ...[
             const SizedBox(height: 20),
             const Text(
               'TODAY',
@@ -35,6 +68,8 @@ class TripsScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => const TripDetailScreen()),
               ),
             ),
+          ],
+          if (completed) ...[
             const SizedBox(height: 18),
             const Text(
               'RECENTLY COMPLETED',
@@ -45,9 +80,50 @@ class TripsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            const _TripListItem(completed: true),
+            _TripListItem(
+                completed: true,
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const CompletedTripScreen()))),
           ],
-        ),
+        ],
+      ),
+    );
+  }
+}
+
+class CompletedTripScreen extends StatelessWidget {
+  const CompletedTripScreen({super.key});
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: const Text('Completed trip')),
+        body: ListView(padding: const EdgeInsets.all(20), children: [
+          const TripSummaryCard(
+              id: 'N1-2027',
+              pickup: 'Factory B',
+              destination: 'Warehouse C',
+              completed: true),
+          const SizedBox(height: 24),
+          const SectionHeader(title: 'Delivery summary'),
+          const SizedBox(height: 12),
+          const Card(
+              child: Padding(
+                  padding: EdgeInsets.all(18),
+                  child: Column(children: [
+                    InfoRow(
+                        icon: Icons.tag, label: 'Trip ID', value: 'N1-2027'),
+                    Divider(),
+                    InfoRow(
+                        icon: Icons.check_circle_outline,
+                        label: 'Status',
+                        value: 'Completed'),
+                  ]))),
+          const SizedBox(height: 16),
+          const Text(
+              'Delivery documents and recorded quantities are not available for this trip.',
+              style: TextStyle(color: AppColors.muted)),
+        ]),
       );
 }
 

@@ -1,6 +1,6 @@
 # N1 Transaction
 
-A driver-first Flutter UI prototype for N1 Logistic. It uses local mock data and Material 3 only, so it is ready to extend with API, maps, and state management later.
+A driver-first Flutter UI prototype for N1 TRANSPORTATION. It uses local mock data and Material 3 only, so it is ready to extend with API, maps, and state management later.
 
 ## Run
 

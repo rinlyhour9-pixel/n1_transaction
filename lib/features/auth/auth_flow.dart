@@ -174,7 +174,7 @@ class WelcomeScreen extends StatelessWidget {
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(15))),
                               icon: const Icon(Icons.arrow_forward),
-                              label: const Text('Open N1 Logistic',
+                              label: const Text('Open N1 TRANSPORTATION',
                                   style:
                                       TextStyle(fontWeight: FontWeight.w800)),
                             ),
@@ -541,7 +541,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: () => ScaffoldMessenger.of(context)
                                   .showSnackBar(const SnackBar(
                                 content: Text(
-                                    'Please contact N1 Logistic support to reset your password.'),
+                                    'Please contact N1 TRANSPORTATION support to reset your password.'),
                               )),
                           child: const Text('Forgot password?'))),
                   const SizedBox(height: 16),
@@ -686,32 +686,24 @@ class _BrandMark extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
         children: [
-          Container(
-            width: 37,
-            height: 37,
-            decoration: BoxDecoration(
-              color: light ? Colors.white : AppColors.navy,
-              borderRadius: BorderRadius.circular(11),
-            ),
-            child: Center(
-              child: Text(
-                'N1',
-                style: TextStyle(
-                  color: light ? AppColors.navy : Colors.white,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
+          Image.asset(
+            'assets/images_Logo/N1 logo.png',
+            width: 44,
+            height: 44,
+            fit: BoxFit.contain,
+            excludeFromSemantics: true,
           ),
           const SizedBox(width: 10),
-          Text(
-            'N1 LOGISTIC',
+          Flexible(
+              child: Text(
+            'N1 TRANSPORTATION',
             style: TextStyle(
               color: light ? Colors.white : AppColors.navy,
-              letterSpacing: 1.3,
+              fontSize: 14,
+              letterSpacing: .6,
               fontWeight: FontWeight.w900,
             ),
-          ),
+          )),
         ],
       );
 }

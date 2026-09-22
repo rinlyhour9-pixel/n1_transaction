@@ -22,7 +22,7 @@ class _N1AppState extends State<N1App> {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-        title: 'N1 Logistic',
+        title: 'N1 TRANSPORTATION',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light(),
         darkTheme: AppTheme.dark(),

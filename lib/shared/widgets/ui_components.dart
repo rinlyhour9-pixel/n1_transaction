@@ -574,7 +574,7 @@ class WorkspaceHeader extends StatelessWidget {
                                           fontWeight: FontWeight.w800,
                                           letterSpacing: -.7)),
                                   const SizedBox(height: 8),
-                                  const Text('N1 Logistic',
+                                  const Text('N1 TRANSPORTATION',
                                       style: TextStyle(
                                           color: Color(0xFFC7DCEC),
                                           fontSize: 13)),

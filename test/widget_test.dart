@@ -9,17 +9,55 @@ import 'package:n1_transaction/features/profile/profile_screen.dart';
 import 'package:n1_transaction/features/auth/auth_flow.dart';
 
 void main() {
-  testWidgets('starts at the N1 Logistic welcome screen', (tester) async {
+  testWidgets('quick actions open vehicle and searchable trip history',
+      (tester) async {
+    tester.view.physicalSize = const Size(430, 932);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester
+        .pumpWidget(MaterialApp(home: DriverShell(onThemeChanged: () {})));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('My vehicle'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('My vehicle'));
+    await tester.pumpAndSettle();
+    expect(find.text('Vehicle assignment'), findsOneWidget);
+    await tester.tap(find.text('Assigned trip · N1-2034'));
+    await tester.pumpAndSettle();
+    expect(find.text('Trip details'), findsOneWidget);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Trip history'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Trip history'));
+    await tester.pumpAndSettle();
+    expect(find.text('N1-2027'), findsOneWidget);
+    expect(find.text('N1-2034'), findsNothing);
+    await tester.enterText(find.byType(TextField), 'missing');
+    await tester.pumpAndSettle();
+    expect(find.text('No trips found'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), 'Warehouse C');
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('N1-2027'));
+    await tester.pumpAndSettle();
+    expect(find.text('Delivery summary'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('starts at the N1 TRANSPORTATION welcome screen', (tester) async {
     await tester.pumpWidget(const N1App());
 
-    expect(find.text('Open N1 Logistic'), findsOneWidget);
+    expect(find.text('Open N1 TRANSPORTATION'), findsOneWidget);
     expect(find.textContaining('Logistics that'), findsOneWidget);
   });
 
   testWidgets('driver can complete the role-based entry flow', (tester) async {
     await tester.pumpWidget(const N1App());
 
-    await tester.tap(find.text('Open N1 Logistic'));
+    await tester.tap(find.text('Open N1 TRANSPORTATION'));
     await tester.pumpAndSettle();
     expect(find.text('Select your role'), findsOneWidget);
 

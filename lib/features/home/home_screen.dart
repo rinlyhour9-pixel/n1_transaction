@@ -7,6 +7,7 @@ import '../../shared/widgets/trip_presentation.dart';
 import '../fuel/fuel_screens.dart';
 import '../profile/profile_screen.dart';
 import '../trips/trip_screens.dart';
+import 'vehicle_screen.dart';
 
 class DriverShell extends StatefulWidget {
   const DriverShell({super.key, required this.onThemeChanged, this.onLogout});
@@ -131,47 +132,66 @@ class Dashboard extends StatelessWidget {
                   icon: Icons.history,
                   label: 'Trip history',
                   color: AppColors.blue,
-                  onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text(
-                            'Trip history is available from the Trips tab.')),
-                  ),
+                  onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const TripsScreen(
+                              title: 'Trip history',
+                              initialFilter: 'Completed'))),
                 ),
                 _QuickAction(
                   icon: Icons.directions_car_outlined,
                   label: 'My vehicle',
                   color: AppColors.navy,
-                  onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content:
-                            Text('Vehicle details: PP 3A-1234 · Cement Truck')),
-                  ),
+                  onTap: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const VehicleScreen())),
                 ),
               ],
             ),
             const SizedBox(height: 28),
             const SectionHeader(title: 'Today at a glance'),
             const SizedBox(height: 8),
-            const MetricGrid(
+            MetricGrid(
               children: [
-                MetricCard(
-                  value: '02',
-                  label: "Today's trips",
-                  icon: Icons.route_outlined,
-                  color: AppColors.blue,
-                ),
-                MetricCard(
-                  value: '01',
-                  label: 'Active trips',
-                  icon: Icons.timer_outlined,
-                  color: AppColors.warning,
-                ),
-                MetricCard(
-                  value: '18',
-                  label: 'Completed',
-                  icon: Icons.check_circle_outline,
-                  color: AppColors.success,
-                ),
+                InkWell(
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const TripsScreen(initialFilter: 'Today'))),
+                    borderRadius: BorderRadius.circular(22),
+                    child: const MetricCard(
+                      value: '02',
+                      label: "Today's trips",
+                      icon: Icons.route_outlined,
+                      color: AppColors.blue,
+                    )),
+                InkWell(
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const ActiveTripScreen())),
+                    borderRadius: BorderRadius.circular(22),
+                    child: const MetricCard(
+                      value: '01',
+                      label: 'Active trips',
+                      icon: Icons.timer_outlined,
+                      color: AppColors.warning,
+                    )),
+                InkWell(
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const TripsScreen(
+                                title: 'Completed trips',
+                                initialFilter: 'Completed'))),
+                    borderRadius: BorderRadius.circular(22),
+                    child: const MetricCard(
+                      value: '18',
+                      label: 'Completed',
+                      icon: Icons.check_circle_outline,
+                      color: AppColors.success,
+                    )),
               ],
             ),
           ],
