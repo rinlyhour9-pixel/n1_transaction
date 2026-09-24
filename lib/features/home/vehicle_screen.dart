@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../shared/models/trip.dart';
 import '../../shared/widgets/ui_components.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../fuel/fuel_screens.dart';
 import '../trips/trip_screens.dart';
 
 class VehicleScreen extends StatelessWidget {
   const VehicleScreen({super.key});
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('My vehicle')),
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
+        appBar: AppBar(title: Text(l10n.myVehicle)),
         body: Center(
             child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 680),
@@ -25,8 +28,8 @@ class VehicleScreen extends StatelessWidget {
                       const Icon(Icons.local_shipping_outlined,
                           color: Colors.white, size: 64),
                       const SizedBox(height: 24),
-                      const Text('ASSIGNED VEHICLE',
-                          style: TextStyle(
+                      Text(l10n.assignedVehicle,
+                          style: const TextStyle(
                               color: Colors.white60,
                               fontSize: 11,
                               letterSpacing: 1.4)),
@@ -37,35 +40,35 @@ class VehicleScreen extends StatelessWidget {
                               fontSize: 28,
                               fontWeight: FontWeight.w700)),
                       const SizedBox(height: 4),
-                      const Text('Cement Truck',
-                          style: TextStyle(color: Colors.white70)),
+                      Text(l10n.cementTruck,
+                          style: const TextStyle(color: Colors.white70)),
                     ])),
             const SizedBox(height: 24),
-            const SectionHeader(title: 'Vehicle assignment'),
+            SectionHeader(title: l10n.vehicleAssignment),
             const SizedBox(height: 12),
-            const Card(
+            Card(
                 child: Padding(
-                    padding: EdgeInsets.all(18),
+                    padding: const EdgeInsets.all(18),
                     child: Column(children: [
                       InfoRow(
                           icon: Icons.person_outline,
-                          label: 'Driver',
+                          label: l10n.driverLabel,
                           value: 'Dara Sok'),
-                      Divider(),
+                      const Divider(),
                       InfoRow(
                           icon: Icons.badge_outlined,
-                          label: 'Driver ID',
+                          label: l10n.driverIdLabel,
                           value: 'DR-001'),
                     ]))),
             const SizedBox(height: 24),
-            const SectionHeader(title: 'Vehicle activity'),
+            SectionHeader(title: l10n.vehicleActivity),
             const SizedBox(height: 12),
             Card(
                 child: ListTile(
                     contentPadding: const EdgeInsets.all(16),
                     leading:
                         const Icon(Icons.route_outlined, color: AppColors.blue),
-                    title: Text('Assigned trip · ${demoTrip.id}'),
+                    title: Text(l10n.assignedTripLabel(demoTrip.id)),
                     subtitle:
                         Text('${demoTrip.material} · ${demoTrip.quantity}'),
                     trailing: const Icon(Icons.chevron_right),
@@ -79,8 +82,8 @@ class VehicleScreen extends StatelessWidget {
                     contentPadding: const EdgeInsets.all(16),
                     leading: const Icon(Icons.local_gas_station_outlined,
                         color: AppColors.warning),
-                    title: const Text('Fuel requests'),
-                    subtitle: const Text('View requests and fuel activity'),
+                    title: Text(l10n.fuelRequestsLabel),
+                    subtitle: Text(l10n.viewRequestsSubtitle),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => Navigator.push(
                         context,
@@ -88,7 +91,7 @@ class VehicleScreen extends StatelessWidget {
                             builder: (_) => const FuelScreen())))),
             const SizedBox(height: 24),
             PrimaryButton(
-                label: 'Request fuel',
+                label: l10n.requestFuel,
                 icon: Icons.add,
                 onPressed: () => Navigator.push(
                     context,
@@ -97,4 +100,5 @@ class VehicleScreen extends StatelessWidget {
           ]),
         )),
       );
+  }
 }

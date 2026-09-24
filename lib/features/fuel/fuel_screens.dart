@@ -2,19 +2,22 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/theme/app_colors.dart';
 import '../../shared/widgets/ui_components.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 class FuelScreen extends StatelessWidget {
   const FuelScreen({super.key});
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Fuel')),
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
+        appBar: AppBar(title: Text(l10n.navFuel)),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const FuelRequestScreen()),
           ),
           icon: const Icon(Icons.add),
-          label: const Text('Request fuel'),
+          label: Text(l10n.requestFuel),
         ),
         body: ListView(
           padding: const EdgeInsets.all(AppSpacing.lg),
@@ -39,9 +42,9 @@ class FuelScreen extends StatelessWidget {
                         fontSize: 42,
                       ),
                     ),
-                    const Text(
-                      'Current fuel level',
-                      style: TextStyle(color: Colors.white70),
+                    Text(
+                      l10n.currentFuelLevel,
+                      style: const TextStyle(color: Colors.white70),
                     ),
                     const SizedBox(height: 14),
                     LinearProgressIndicator(
@@ -56,24 +59,24 @@ class FuelScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 26),
-            const SectionHeader(title: 'Latest request'),
-            const _RequestCard(
-              status: 'Approved',
+            SectionHeader(title: l10n.latestRequest),
+            _RequestCard(
+              status: l10n.statusApproved,
               liters: '120 L',
               date: 'Today · 07:10 AM',
               color: AppColors.success,
             ),
             const SizedBox(height: 22),
-            const SectionHeader(title: 'Request history'),
-            const _RequestCard(
-              status: 'Pending',
+            SectionHeader(title: l10n.requestHistory),
+            _RequestCard(
+              status: l10n.statusPending,
               liters: '80 L',
               date: 'Sep 14 · 04:20 PM',
               color: AppColors.warning,
             ),
             const SizedBox(height: 10),
-            const _RequestCard(
-              status: 'Approved',
+            _RequestCard(
+              status: l10n.statusApproved,
               liters: '100 L',
               date: 'Sep 09 · 08:00 AM',
               color: AppColors.success,
@@ -81,6 +84,7 @@ class FuelScreen extends StatelessWidget {
           ],
         ),
       );
+  }
 }
 
 class _RequestCard extends StatelessWidget {
@@ -121,9 +125,25 @@ class FuelRequestScreen extends StatefulWidget {
 
 class _FuelRequestScreenState extends State<FuelRequestScreen> {
   String reason = 'Current Trip';
+
+  String _reasonLabel(AppLocalizations l10n, String item) {
+    switch (item) {
+      case 'Current Trip':
+        return l10n.reasonCurrentTrip;
+      case 'Next Trip':
+        return l10n.reasonNextTrip;
+      case 'Low Fuel':
+        return l10n.reasonLowFuel;
+      default:
+        return l10n.reasonOther;
+    }
+  }
+
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Request fuel')),
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
+        appBar: AppBar(title: Text(l10n.requestFuel)),
         body: ListView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
@@ -131,13 +151,13 @@ class _FuelRequestScreenState extends State<FuelRequestScreen> {
             const SizedBox(height: 24),
             TextField(
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Requested amount',
-                suffixText: 'Liters',
+              decoration: InputDecoration(
+                labelText: l10n.requestedAmount,
+                suffixText: l10n.liters,
               ),
             ),
             const SizedBox(height: 20),
-            const Text('Reason', style: TextStyle(fontWeight: FontWeight.w800)),
+            Text(l10n.reason, style: const TextStyle(fontWeight: FontWeight.w800)),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
@@ -145,7 +165,7 @@ class _FuelRequestScreenState extends State<FuelRequestScreen> {
               children: ['Current Trip', 'Next Trip', 'Low Fuel', 'Other']
                   .map(
                     (item) => ChoiceChip(
-                      label: Text(item),
+                      label: Text(_reasonLabel(l10n, item)),
                       selected: reason == item,
                       onSelected: (_) => setState(() => reason = item),
                     ),
@@ -155,50 +175,54 @@ class _FuelRequestScreenState extends State<FuelRequestScreen> {
             const SizedBox(height: 16),
             TextField(
               maxLines: 3,
-              decoration: const InputDecoration(hintText: 'Optional note'),
+              decoration: InputDecoration(hintText: l10n.optionalNote),
             ),
             const SizedBox(height: 26),
             PrimaryButton(
-              label: 'Submit request',
+              label: l10n.submitRequest,
               icon: Icons.send_outlined,
               onPressed: () => _confirm(context),
             ),
           ],
         ),
       );
+  }
 }
 
-void _confirm(BuildContext context) => showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        icon:
-            const Icon(Icons.check_circle, color: AppColors.success, size: 36),
-        title: const Text('Request submitted'),
-        content: const Text(
-          'Your fuel request has been sent to the Fuel Stock Manager.',
+void _confirm(BuildContext context) {
+  final l10n = AppLocalizations.of(context)!;
+  showDialog(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      icon:
+          const Icon(Icons.check_circle, color: AppColors.success, size: 36),
+      title: Text(l10n.requestSubmittedTitle),
+      content: Text(l10n.requestSubmittedBody),
+      actions: [
+        TextButton(
+          onPressed: () =>
+              Navigator.of(dialogContext).popUntil((route) => route.isFirst),
+          child: Text(l10n.done),
         ),
-        actions: [
-          TextButton(
-            onPressed: () =>
-                Navigator.of(dialogContext).popUntil((route) => route.isFirst),
-            child: const Text('Done'),
-          ),
-        ],
-      ),
-    );
+      ],
+    ),
+  );
+}
 
 class _RequestVehicle extends StatelessWidget {
   const _RequestVehicle();
   @override
-  Widget build(BuildContext context) => Card(
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'REQUEST FOR',
-                style: TextStyle(
+              Text(
+                l10n.requestFor,
+                style: const TextStyle(
                   color: AppColors.muted,
                   fontWeight: FontWeight.w800,
                   fontSize: 12,
@@ -214,7 +238,7 @@ class _RequestVehicle extends StatelessWidget {
                 children: [
                   const Icon(Icons.local_gas_station, color: AppColors.warning),
                   const SizedBox(width: 8),
-                  const Text('Current fuel'),
+                  Text(l10n.currentFuel),
                   const Spacer(),
                   Text(
                     '35%',
@@ -229,4 +253,5 @@ class _RequestVehicle extends StatelessWidget {
           ),
         ),
       );
+  }
 }

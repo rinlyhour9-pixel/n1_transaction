@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 abstract final class AppTheme {
-  static ThemeData light() => _build(Brightness.light);
-  static ThemeData dark() => _build(Brightness.dark);
+  static ThemeData light({Locale locale = const Locale('en')}) =>
+      _build(Brightness.light, locale);
+  static ThemeData dark({Locale locale = const Locale('en')}) =>
+      _build(Brightness.dark, locale);
 
-  static ThemeData _build(Brightness brightness) {
+  static ThemeData _build(Brightness brightness, Locale locale) {
     final dark = brightness == Brightness.dark;
+    final isKhmer = locale.languageCode == 'km';
     final scheme = ColorScheme.fromSeed(
       seedColor: AppColors.navy,
       brightness: brightness,
@@ -22,7 +25,8 @@ abstract final class AppTheme {
       colorScheme: scheme,
       scaffoldBackgroundColor:
           dark ? const Color(0xFF101827) : AppColors.background,
-      fontFamily: 'Arial',
+      fontFamily: isKhmer ? 'KantumruyPro' : 'Arial',
+      fontFamilyFallback: const ['KantumruyPro'],
       textTheme: base.copyWith(
         displaySmall: base.displaySmall?.copyWith(
           fontSize: 34,

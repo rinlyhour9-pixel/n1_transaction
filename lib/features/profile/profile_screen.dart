@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/theme/app_colors.dart';
+import '../../l10n/generated/app_localizations.dart';
+import '../../shared/widgets/language_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({
@@ -10,11 +12,15 @@ class ProfileScreen extends StatefulWidget {
     this.name = 'Dara Sok',
     this.accountLabel = 'Driver ID · DR-001',
     this.isDriver = true,
+    required this.locale,
+    required this.onLocaleChanged,
   });
   final VoidCallback onThemeChanged;
   final VoidCallback? onLogout;
   final String name, accountLabel;
   final bool isDriver;
+  final Locale locale;
+  final ValueChanged<Locale> onLocaleChanged;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -24,12 +30,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late String name = widget.name;
 
   Future<void> _editProfile() async {
+    final l10n = AppLocalizations.of(context)!;
     var editedName = name;
     final formKey = GlobalKey<FormState>();
     final updated = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Personal information'),
+        title: Text(l10n.personalInfo),
         content: Form(
           key: formKey,
           child: TextFormField(
@@ -37,31 +44,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onChanged: (value) => editedName = value,
             autofocus: true,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(labelText: 'Full name'),
+            decoration: InputDecoration(labelText: l10n.fullName),
             validator: (value) => value == null || value.trim().isEmpty
-                ? 'Enter your name'
+                ? l10n.enterYourName
                 : null,
           ),
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
+              child: Text(l10n.cancel)),
           FilledButton(
               onPressed: () {
                 if (formKey.currentState!.validate()) {
                   Navigator.pop(context, editedName.trim());
                 }
               },
-              child: const Text('Save')),
+              child: Text(l10n.save)),
         ],
       ),
     );
     if (mounted && updated != null) setState(() => name = updated);
   }
 
+  Future<void> _selectLanguage() =>
+      showLanguagePicker(context, widget.locale, widget.onLocaleChanged);
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final dark = Theme.of(context).brightness == Brightness.dark;
     final muted = dark ? Colors.white60 : const Color(0xFF677087);
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -110,25 +121,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 4),
                             child: Row(children: [
-                              const Expanded(
+                              Expanded(
                                   child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Profile',
-                                      style: TextStyle(
+                                  Text(l10n.profileTitle,
+                                      style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 28,
                                           fontWeight: FontWeight.w800)),
-                                  SizedBox(height: 4),
-                                  Text('Manage your account and preferences',
-                                      style: TextStyle(
+                                  const SizedBox(height: 4),
+                                  Text(l10n.profileSubtitle,
+                                      style: const TextStyle(
                                           color: Color(0xFFD4E5FA),
                                           fontSize: 14)),
                                 ],
                               )),
                               const SizedBox(width: 8),
                               IconButton.filled(
-                                tooltip: 'Edit profile',
+                                tooltip: l10n.editProfile,
                                 onPressed: _editProfile,
                                 style: IconButton.styleFrom(
                                     backgroundColor:
@@ -213,8 +224,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               Flexible(
                                                   child: Text(
                                                       widget.isDriver
-                                                          ? 'Active Driver'
-                                                          : 'Active account',
+                                                          ? l10n.activeDriver
+                                                          : l10n.activeAccount,
                                                       style: const TextStyle(
                                                           color:
                                                               Color(0xFF009568),
@@ -226,30 +237,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           )),
                           if (widget.isDriver) ...[
                             const SizedBox(height: 12),
-                            const _Panel(
+                            _Panel(
                                 child: Padding(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 14, vertical: 2),
                               child: Column(children: [
                                 _Detail(
                                     icon: Icons.phone_outlined,
-                                    label: 'Phone',
+                                    label: l10n.phone,
                                     value: '+855 12 345 678'),
-                                Divider(height: 1),
+                                const Divider(height: 1),
                                 _Detail(
                                     icon: Icons.badge_outlined,
-                                    label: 'License number',
+                                    label: l10n.licenseNumber,
                                     value: 'KHM-DL-104293'),
-                                Divider(height: 1),
+                                const Divider(height: 1),
                                 _Detail(
                                     icon: Icons.local_shipping_outlined,
-                                    label: 'Assigned vehicle',
+                                    label: l10n.assignedVehicleLabel,
                                     value: 'PP 3A-1234'),
                               ]),
                             )),
                           ],
                           const SizedBox(height: 20),
-                          Text('Settings',
+                          Text(l10n.settings,
                               style: TextStyle(
                                   color: muted,
                                   fontWeight: FontWeight.w700,
@@ -257,32 +268,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(height: 9),
                           _Menu(
                               icon: Icons.person_outline,
-                              label: 'Personal information',
-                              subtitle: 'Update your personal details',
+                              label: l10n.personalInfo,
+                              subtitle: l10n.personalInfoSubtitle,
                               color: const Color(0xFF0759AA),
                               onTap: _editProfile),
-                          const _Menu(
+                          _Menu(
                               icon: Icons.lock_outline,
-                              label: 'Change password',
-                              subtitle: 'Keep your account secure',
-                              color: Color(0xFF009568)),
-                          const _Menu(
+                              label: l10n.changePassword,
+                              subtitle: l10n.changePasswordSubtitle,
+                              color: const Color(0xFF009568)),
+                          _Menu(
                               icon: Icons.language,
-                              label: 'Language',
-                              subtitle: 'Select your preferred language',
-                              color: Color(0xFF7131D5),
-                              detail: 'English'),
+                              label: l10n.language,
+                              subtitle: l10n.languageSubtitle,
+                              color: const Color(0xFF7131D5),
+                              detail: widget.locale.languageCode == 'km'
+                                  ? l10n.languageKhmer
+                                  : l10n.languageEnglish,
+                              onTap: _selectLanguage),
                           _Menu(
                               icon: Icons.dark_mode_outlined,
-                              label: 'Toggle theme',
-                              subtitle: 'Switch between light and dark mode',
+                              label: l10n.toggleTheme,
+                              subtitle: l10n.toggleThemeSubtitle,
                               color: const Color(0xFFE79300),
                               onTap: widget.onThemeChanged),
-                          const _Menu(
+                          _Menu(
                               icon: Icons.help_outline,
-                              label: 'Help & support',
-                              subtitle: 'Get help or contact our team',
-                              color: Color(0xFFED263B)),
+                              label: l10n.helpSupport,
+                              subtitle: l10n.helpSupportSubtitle,
+                              color: const Color(0xFFED263B)),
                           const SizedBox(height: 10),
                           SizedBox(
                               width: double.infinity,
@@ -290,7 +304,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 onPressed: () =>
                                     _logout(context, widget.onLogout),
                                 icon: const Icon(Icons.logout),
-                                label: const Text('Log out'),
+                                label: Text(l10n.logOut),
                                 style: OutlinedButton.styleFrom(
                                     foregroundColor: const Color(0xFFFF3038),
                                     minimumSize: const Size.fromHeight(48),
@@ -438,22 +452,24 @@ class _Menu extends StatelessWidget {
       );
 }
 
-void _logout(BuildContext context, VoidCallback? onLogout) => showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Log out?'),
-        content: const Text(
-            'You will need to sign in again to access your workspace.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel')),
-          FilledButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                onLogout?.call();
-              },
-              child: const Text('Log out')),
-        ],
-      ),
-    );
+void _logout(BuildContext context, VoidCallback? onLogout) {
+  final l10n = AppLocalizations.of(context)!;
+  showDialog(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(l10n.logOutTitle),
+      content: Text(l10n.logOutBody),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(l10n.cancel)),
+        FilledButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              onLogout?.call();
+            },
+            child: Text(l10n.logOut)),
+      ],
+    ),
+  );
+}

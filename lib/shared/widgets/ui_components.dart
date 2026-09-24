@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'trip_presentation.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/theme/app_colors.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
@@ -17,7 +18,9 @@ class PrimaryButton extends StatelessWidget {
   final IconData? icon;
   final bool isLoading;
   @override
-  Widget build(BuildContext context) => SizedBox(
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return SizedBox(
         height: 54,
         width: double.infinity,
         child: FilledButton.icon(
@@ -33,7 +36,7 @@ class PrimaryButton extends StatelessWidget {
                   ? const SizedBox.shrink()
                   : Icon(icon),
           label: Text(
-            isLoading ? 'Please wait…' : label,
+            isLoading ? l10n.pleaseWait : label,
             style: const TextStyle(fontWeight: FontWeight.w700),
           ),
           style: FilledButton.styleFrom(
@@ -53,6 +56,7 @@ class PrimaryButton extends StatelessWidget {
           ),
         ),
       );
+  }
 }
 
 class SecondaryButton extends StatelessWidget {
@@ -186,36 +190,44 @@ class MetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Card(
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(AppSpacing.sm),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(7),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: .12),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: color, size: 21),
+              Row(
+                children: [
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: .12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(icon, color: color, size: 18),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        value,
+                        style: const TextStyle(
+                          fontSize: 21,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const Spacer(),
-              Text(
-                value,
-                style: Theme.of(
-                  context,
-                )
-                    .textTheme
-                    .headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -.8),
-              ),
               Text(
                 label,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant),
+                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -224,28 +236,21 @@ class MetricCard extends StatelessWidget {
 }
 
 class MetricGrid extends StatelessWidget {
-  const MetricGrid({super.key, required this.children, this.height = 132});
+  const MetricGrid({super.key, required this.children, this.height = 118});
   final List<Widget> children;
   final double height;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
         builder: (context, constraints) {
-          final columns = (constraints.maxWidth >= 700
-              ? children.length.clamp(1, 4)
-              : constraints.maxWidth >= 480
-                  ? children.length.clamp(1, 3)
-                  : 2);
+          final columns = children.length.clamp(1, 4);
           final width = (constraints.maxWidth - (columns - 1) * 10) / columns;
-          // Two columns are used on a 430 pt phone. The extra height keeps
-          // the icon, value, and a two-line label inside the card.
-          final itemHeight = columns == 2 ? height + 16 : height;
           return Wrap(
             spacing: 10,
             runSpacing: 10,
             children: [
               for (final child in children)
-                SizedBox(width: width, height: itemHeight, child: child),
+                SizedBox(width: width, height: height, child: child),
             ],
           );
         },
@@ -267,9 +272,7 @@ class ActionGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) => LayoutBuilder(
         builder: (context, constraints) {
-          // Three columns leave too little room for a useful label at 430 pt.
-          // Move to three only when every action retains a 150 pt tap target.
-          final columns = constraints.maxWidth >= 500 ? 3 : 2;
+          final columns = children.length.clamp(1, 4);
           final width =
               (constraints.maxWidth - (columns - 1) * AppSpacing.sm) / columns;
 
@@ -465,12 +468,14 @@ class WorkspaceHeader extends StatelessWidget {
   final VoidCallback? onNotifications, onProfile;
 
   @override
-  Widget build(BuildContext context) => AnnotatedRegion<SystemUiOverlayStyle>(
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
         child: Container(
           width: double.infinity,
           decoration: const BoxDecoration(
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(26)),
             gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -479,54 +484,55 @@ class WorkspaceHeader extends StatelessWidget {
           child: SafeArea(
               bottom: false,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(22, 12, 22, 18),
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 14),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(children: [
-                        Icon(icon, color: const Color(0xFFAFD4F2), size: 25),
-                        const SizedBox(width: 12),
+                        Icon(icon, color: const Color(0xFFAFD4F2), size: 22),
+                        const SizedBox(width: 10),
                         Expanded(
                             child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                              const Text('Good morning,',
-                                  style: TextStyle(
-                                      color: Color(0xFFB4CEE5), fontSize: 12)),
-                              const SizedBox(height: 4),
+                              Text(l10n.goodMorning,
+                                  style: const TextStyle(
+                                      color: Color(0xFFB4CEE5), fontSize: 11)),
+                              const SizedBox(height: 3),
                               Text(name,
                                   style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w600,
-                                      fontSize: 17)),
+                                      fontSize: 15)),
                             ])),
                         if (onNotifications != null) ...[
                           IconButton.filled(
                               onPressed: onNotifications,
-                              tooltip: 'Notifications',
+                              tooltip: l10n.navNotifications,
                               style: IconButton.styleFrom(
                                   backgroundColor:
                                       Colors.white.withValues(alpha: .12),
                                   foregroundColor: Colors.white,
+                                  minimumSize: const Size(38, 38),
                                   shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15))),
+                                      borderRadius: BorderRadius.circular(13))),
                               icon: const Icon(Icons.notifications_outlined,
-                                  size: 23)),
+                                  size: 20)),
                           const SizedBox(width: 8),
                         ],
                         Semantics(
-                            label: 'Profile',
+                            label: l10n.navProfile,
                             button: onProfile != null,
                             child: InkWell(
                                 onTap: onProfile,
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(14),
                                 child: Container(
-                                    width: 46,
-                                    height: 46,
+                                    width: 38,
+                                    height: 38,
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
                                         color: const Color(0xFF286594),
-                                        borderRadius: BorderRadius.circular(16),
+                                        borderRadius: BorderRadius.circular(14),
                                         border: Border.all(
                                             color: Colors.white70, width: 1.5)),
                                     child: Text(
@@ -539,27 +545,27 @@ class WorkspaceHeader extends StatelessWidget {
                                         style: const TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w700,
-                                            fontSize: 17))))),
+                                            fontSize: 14))))),
                       ]),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 12),
                       Container(
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 11),
+                              horizontal: 14, vertical: 9),
                           decoration: BoxDecoration(
                               color: const Color(0xFFF5F9FC),
-                              borderRadius: BorderRadius.circular(18)),
+                              borderRadius: BorderRadius.circular(16)),
                           child: Row(children: [
-                            Icon(icon, color: AppColors.navy, size: 22),
-                            const SizedBox(width: 12),
+                            Icon(icon, color: AppColors.navy, size: 19),
+                            const SizedBox(width: 10),
                             Expanded(
                                 child: Text(detail ?? workspace,
                                     style: const TextStyle(
                                         color: AppColors.navy,
-                                        fontSize: 14,
+                                        fontSize: 13,
                                         fontWeight: FontWeight.w500))),
                           ])),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       Row(children: [
                         Expanded(
                             flex: 3,
@@ -569,23 +575,24 @@ class WorkspaceHeader extends StatelessWidget {
                                   Text(workspace,
                                       style: const TextStyle(
                                           color: Colors.white,
-                                          fontSize: 25,
-                                          height: 1.12,
-                                          fontWeight: FontWeight.w800,
-                                          letterSpacing: -.7)),
-                                  const SizedBox(height: 8),
+                                          fontSize: 19,
+                                          height: 1.15,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: -.3)),
+                                  const SizedBox(height: 5),
                                   const Text('N1 TRANSPORTATION',
                                       style: TextStyle(
                                           color: Color(0xFFC7DCEC),
-                                          fontSize: 13)),
+                                          fontSize: 12)),
                                 ])),
-                        const SizedBox(width: 16),
-                        const Flexible(flex: 2, child: CargoArtwork(size: 96)),
+                        const SizedBox(width: 12),
+                        const Flexible(flex: 2, child: CargoArtwork(size: 68)),
                       ]),
                     ]),
               )),
         ),
       );
+  }
 }
 
 class DashboardContent extends StatelessWidget {

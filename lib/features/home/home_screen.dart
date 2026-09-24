@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/theme/app_colors.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../shared/models/trip.dart';
 import '../../shared/widgets/ui_components.dart';
 import '../../shared/widgets/trip_presentation.dart';
@@ -10,9 +11,17 @@ import '../trips/trip_screens.dart';
 import 'vehicle_screen.dart';
 
 class DriverShell extends StatefulWidget {
-  const DriverShell({super.key, required this.onThemeChanged, this.onLogout});
+  const DriverShell({
+    super.key,
+    required this.onThemeChanged,
+    this.onLogout,
+    required this.locale,
+    required this.onLocaleChanged,
+  });
   final VoidCallback onThemeChanged;
   final VoidCallback? onLogout;
+  final Locale locale;
+  final ValueChanged<Locale> onLocaleChanged;
   @override
   State<DriverShell> createState() => _DriverShellState();
 }
@@ -42,6 +51,8 @@ class _DriverShellState extends State<DriverShell> {
       ProfileScreen(
         onThemeChanged: widget.onThemeChanged,
         onLogout: widget.onLogout,
+        locale: widget.locale,
+        onLocaleChanged: widget.onLocaleChanged,
       ),
     ];
     return LayoutBuilder(
@@ -64,23 +75,23 @@ class _DriverShellState extends State<DriverShell> {
           bottomNavigationBar: AppNavigationBar(
             selectedIndex: index,
             onDestinationSelected: (value) => setState(() => index = value),
-            destinations: const [
+            destinations: [
               NavigationDestination(
-                  icon: Icon(Icons.home_outlined),
-                  selectedIcon: Icon(Icons.home),
-                  label: 'Home'),
+                  icon: const Icon(Icons.home_outlined),
+                  selectedIcon: const Icon(Icons.home),
+                  label: AppLocalizations.of(context)!.navHome),
               NavigationDestination(
-                  icon: Icon(Icons.local_shipping_outlined),
-                  selectedIcon: Icon(Icons.local_shipping),
-                  label: 'Trips'),
+                  icon: const Icon(Icons.local_shipping_outlined),
+                  selectedIcon: const Icon(Icons.local_shipping),
+                  label: AppLocalizations.of(context)!.navTrips),
               NavigationDestination(
-                  icon: Icon(Icons.local_gas_station_outlined),
-                  selectedIcon: Icon(Icons.local_gas_station),
-                  label: 'Fuel'),
+                  icon: const Icon(Icons.local_gas_station_outlined),
+                  selectedIcon: const Icon(Icons.local_gas_station),
+                  label: AppLocalizations.of(context)!.navFuel),
               NavigationDestination(
-                  icon: Icon(Icons.person_outline),
-                  selectedIcon: Icon(Icons.person),
-                  label: 'Profile'),
+                  icon: const Icon(Icons.person_outline),
+                  selectedIcon: const Icon(Icons.person),
+                  label: AppLocalizations.of(context)!.navProfile),
             ],
           ),
         );
@@ -99,104 +110,107 @@ class Dashboard extends StatelessWidget {
   });
   final VoidCallback onTrip, onFuel, onNotifications, onProfile;
   @override
-  Widget build(BuildContext context) => RefreshIndicator(
-        onRefresh: () async =>
-            await Future<void>.delayed(const Duration(milliseconds: 700)),
-        child: DashboardContent(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          children: [
-            WorkspaceHeader(
-              name: 'Dara Sok',
-              workspace: 'Driver operations',
-              icon: Icons.local_shipping_outlined,
-              detail: 'DR-001 · On duty',
-              onNotifications: onNotifications,
-              onProfile: onProfile,
-            ),
-            const SizedBox(height: 28),
-            const SectionHeader(title: "Today's assigned trip"),
-            const SizedBox(height: 8),
-            _TripCard(onTap: onTrip),
-            const SizedBox(height: 28),
-            const SectionHeader(title: 'Quick actions'),
-            const SizedBox(height: 8),
-            ActionGrid(
-              children: [
-                _QuickAction(
-                  icon: Icons.local_gas_station_outlined,
-                  label: 'Request fuel',
-                  color: AppColors.warning,
-                  onTap: onFuel,
-                ),
-                _QuickAction(
-                  icon: Icons.history,
-                  label: 'Trip history',
-                  color: AppColors.blue,
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return RefreshIndicator(
+      onRefresh: () async =>
+          await Future<void>.delayed(const Duration(milliseconds: 700)),
+      child: DashboardContent(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        children: [
+          WorkspaceHeader(
+            name: 'Dara Sok',
+            workspace: l10n.roleDriverShort,
+            icon: Icons.local_shipping_outlined,
+            detail: 'DR-001 · ${l10n.onDuty}',
+            onNotifications: onNotifications,
+            onProfile: onProfile,
+          ),
+          const SizedBox(height: 28),
+          SectionHeader(title: l10n.todaysTrip),
+          const SizedBox(height: 8),
+          _TripCard(onTap: onTrip),
+          const SizedBox(height: 28),
+          SectionHeader(title: l10n.quickActions),
+          const SizedBox(height: 8),
+          ActionGrid(
+            children: [
+              _QuickAction(
+                icon: Icons.local_gas_station_outlined,
+                label: l10n.requestFuel,
+                color: AppColors.warning,
+                onTap: onFuel,
+              ),
+              _QuickAction(
+                icon: Icons.history,
+                label: l10n.tripHistory,
+                color: AppColors.blue,
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => TripsScreen(
+                            title: l10n.tripHistory,
+                            initialFilter: 'Completed'))),
+              ),
+              _QuickAction(
+                icon: Icons.directions_car_outlined,
+                label: l10n.myVehicle,
+                color: AppColors.navy,
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const VehicleScreen())),
+              ),
+            ],
+          ),
+          const SizedBox(height: 28),
+          SectionHeader(title: l10n.todayAtGlance),
+          const SizedBox(height: 8),
+          MetricGrid(
+            children: [
+              InkWell(
                   onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const TripsScreen(
-                              title: 'Trip history',
+                          builder: (_) =>
+                              const TripsScreen(initialFilter: 'Today'))),
+                  borderRadius: BorderRadius.circular(22),
+                  child: MetricCard(
+                    value: '02',
+                    label: l10n.todaysTrips,
+                    icon: Icons.route_outlined,
+                    color: AppColors.blue,
+                  )),
+              InkWell(
+                  onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const ActiveTripScreen())),
+                  borderRadius: BorderRadius.circular(22),
+                  child: MetricCard(
+                    value: '01',
+                    label: l10n.activeTrips,
+                    icon: Icons.timer_outlined,
+                    color: AppColors.warning,
+                  )),
+              InkWell(
+                  onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => TripsScreen(
+                              title: l10n.completedTripsTitle,
                               initialFilter: 'Completed'))),
-                ),
-                _QuickAction(
-                  icon: Icons.directions_car_outlined,
-                  label: 'My vehicle',
-                  color: AppColors.navy,
-                  onTap: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const VehicleScreen())),
-                ),
-              ],
-            ),
-            const SizedBox(height: 28),
-            const SectionHeader(title: 'Today at a glance'),
-            const SizedBox(height: 8),
-            MetricGrid(
-              children: [
-                InkWell(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) =>
-                                const TripsScreen(initialFilter: 'Today'))),
-                    borderRadius: BorderRadius.circular(22),
-                    child: const MetricCard(
-                      value: '02',
-                      label: "Today's trips",
-                      icon: Icons.route_outlined,
-                      color: AppColors.blue,
-                    )),
-                InkWell(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const ActiveTripScreen())),
-                    borderRadius: BorderRadius.circular(22),
-                    child: const MetricCard(
-                      value: '01',
-                      label: 'Active trips',
-                      icon: Icons.timer_outlined,
-                      color: AppColors.warning,
-                    )),
-                InkWell(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const TripsScreen(
-                                title: 'Completed trips',
-                                initialFilter: 'Completed'))),
-                    borderRadius: BorderRadius.circular(22),
-                    child: const MetricCard(
-                      value: '18',
-                      label: 'Completed',
-                      icon: Icons.check_circle_outline,
-                      color: AppColors.success,
-                    )),
-              ],
-            ),
-          ],
-        ),
-      );
+                  borderRadius: BorderRadius.circular(22),
+                  child: MetricCard(
+                    value: '18',
+                    label: l10n.completed,
+                    icon: Icons.check_circle_outline,
+                    color: AppColors.success,
+                  )),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _TripCard extends StatelessWidget {
@@ -214,7 +228,7 @@ class _TripCard extends StatelessWidget {
             onTap: onTap),
         const SizedBox(height: 12),
         PrimaryButton(
-            label: 'Start trip',
+            label: AppLocalizations.of(context)!.startTrip,
             onPressed: onTap,
             icon: Icons.play_arrow_rounded),
       ]);
@@ -250,6 +264,8 @@ class _QuickAction extends StatelessWidget {
                 const Spacer(),
                 Text(
                   label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                       fontSize: 12, fontWeight: FontWeight.w700),
                 ),
@@ -263,24 +279,29 @@ class _QuickAction extends StatelessWidget {
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Notifications')),
-        body: ListView(
-          children: const [
-            ListTile(
-              leading: CircleAvatar(child: Icon(Icons.route)),
-              title: Text('New trip assigned'),
-              subtitle: Text('Trip N1-2034 starts at 08:30 AM'),
-              trailing: Text('Now'),
-            ),
-            Divider(),
-            ListTile(
-              leading: CircleAvatar(child: Icon(Icons.local_gas_station)),
-              title: Text('Fuel request approved'),
-              subtitle: Text('120 L for PP 3A-1234'),
-              trailing: Text('2h'),
-            ),
-          ],
-        ),
-      );
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.notifications)),
+      body: ListView(
+        children: [
+          ListTile(
+            leading: const CircleAvatar(child: Icon(Icons.route)),
+            title: Text(l10n.notifNewTripTitle),
+            subtitle: Text(l10n.notifNewTripSubtitle('N1-2034', '08:30 AM')),
+            trailing: Text(l10n.notifNow),
+          ),
+          const Divider(),
+          ListTile(
+            leading:
+                const CircleAvatar(child: Icon(Icons.local_gas_station)),
+            title: Text(l10n.notifFuelApprovedTitle),
+            subtitle:
+                Text(l10n.notifFuelApprovedSubtitle('120 L', 'PP 3A-1234')),
+            trailing: Text(l10n.notif2h),
+          ),
+        ],
+      ),
+    );
+  }
 }

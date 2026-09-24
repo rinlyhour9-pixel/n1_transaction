@@ -4,35 +4,42 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/theme/app_colors.dart';
+import '../../l10n/generated/app_localizations.dart';
+import '../../shared/widgets/language_picker.dart';
 import '../../shared/widgets/ui_components.dart';
 
 enum AppRole { driver, tripAdviser, fuelStockManager, ceo }
 
 extension AppRoleDetails on AppRole {
-  String get label => switch (this) {
-        AppRole.driver => 'Driver',
-        AppRole.tripAdviser => 'Trip Adviser',
-        AppRole.fuelStockManager => 'Fuel Stock Manager',
-        AppRole.ceo => 'CEO / Owner',
-      };
+  String label(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return switch (this) {
+      AppRole.driver => l10n.roleDriver,
+      AppRole.tripAdviser => l10n.roleTripAdviser,
+      AppRole.fuelStockManager => l10n.roleFuelStockManager,
+      AppRole.ceo => l10n.roleCeo,
+    };
+  }
 
-  String get shortLabel => switch (this) {
-        AppRole.driver => 'Driver operations',
-        AppRole.tripAdviser => 'Trip planning',
-        AppRole.fuelStockManager => 'Fuel operations',
-        AppRole.ceo => 'Business overview',
-      };
+  String shortLabel(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return switch (this) {
+      AppRole.driver => l10n.roleDriverShort,
+      AppRole.tripAdviser => l10n.roleTripAdviserShort,
+      AppRole.fuelStockManager => l10n.roleFuelStockManagerShort,
+      AppRole.ceo => l10n.roleCeoShort,
+    };
+  }
 
-  String get description => switch (this) {
-        AppRole.driver =>
-          'View assigned trips, update delivery status, and request fuel.',
-        AppRole.tripAdviser =>
-          'Plan trips, assign vehicles and drivers, then monitor progress.',
-        AppRole.fuelStockManager =>
-          'Approve fuel requests and keep vehicle fuel stock accurate.',
-        AppRole.ceo =>
-          'Monitor logistics performance, delivery, fuel, and operating costs.',
-      };
+  String description(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return switch (this) {
+      AppRole.driver => l10n.roleDriverDesc,
+      AppRole.tripAdviser => l10n.roleTripAdviserDesc,
+      AppRole.fuelStockManager => l10n.roleFuelStockManagerDesc,
+      AppRole.ceo => l10n.roleCeoDesc,
+    };
+  }
 
   IconData get icon => switch (this) {
         AppRole.driver => Icons.local_shipping_outlined,
@@ -55,12 +62,15 @@ extension AppRoleDetails on AppRole {
         AppRole.ceo => const Color(0xFF087546),
       };
 
-  String get signInLabel => switch (this) {
-        AppRole.driver => 'Driver ID',
-        AppRole.tripAdviser => 'Work email',
-        AppRole.fuelStockManager => 'Employee ID',
-        AppRole.ceo => 'Work email',
-      };
+  String signInLabel(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return switch (this) {
+      AppRole.driver => l10n.roleDriverSignIn,
+      AppRole.tripAdviser => l10n.roleTripAdviserSignIn,
+      AppRole.fuelStockManager => l10n.roleFuelStockManagerSignIn,
+      AppRole.ceo => l10n.roleCeoSignIn,
+    };
+  }
 
   String get demoAccount => switch (this) {
         AppRole.driver => 'DR-001',
@@ -73,8 +83,15 @@ extension AppRoleDetails on AppRole {
 enum _AuthStage { welcome, role, onboarding, login }
 
 class AuthFlow extends StatefulWidget {
-  const AuthFlow({super.key, required this.onAuthenticated});
+  const AuthFlow({
+    super.key,
+    required this.onAuthenticated,
+    required this.locale,
+    required this.onLocaleChanged,
+  });
   final ValueChanged<AppRole> onAuthenticated;
+  final Locale locale;
+  final ValueChanged<Locale> onLocaleChanged;
 
   @override
   State<AuthFlow> createState() => _AuthFlowState();
@@ -98,6 +115,8 @@ class _AuthFlowState extends State<AuthFlow> {
     final child = switch (stage) {
       _AuthStage.welcome => WelcomeScreen(
           onContinue: () => setState(() => stage = _AuthStage.role),
+          locale: widget.locale,
+          onLocaleChanged: widget.onLocaleChanged,
         ),
       _AuthStage.role => RoleSelectionScreen(
           onBack: () => setState(() => stage = _AuthStage.welcome),
@@ -125,11 +144,20 @@ class _AuthFlowState extends State<AuthFlow> {
 }
 
 class WelcomeScreen extends StatelessWidget {
-  const WelcomeScreen({super.key, required this.onContinue});
+  const WelcomeScreen({
+    super.key,
+    required this.onContinue,
+    required this.locale,
+    required this.onLocaleChanged,
+  });
   final VoidCallback onContinue;
+  final Locale locale;
+  final ValueChanged<Locale> onLocaleChanged;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
         body: Stack(
           children: [
             const _WelcomeBackdrop(),
@@ -148,18 +176,18 @@ class WelcomeScreen extends StatelessWidget {
                           const ExcludeSemantics(child: _WelcomeIllustration()),
                           SizedBox(
                               height: compact ? AppSpacing.xl : AppSpacing.xxl),
-                          const Text(
-                            'Logistics that\nmove with confidence.',
-                            style: TextStyle(
+                          Text(
+                            l10n.welcomeHeadline,
+                            style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 34,
                                 height: 1.12,
                                 fontWeight: FontWeight.w900),
                           ),
                           const SizedBox(height: AppSpacing.sm),
-                          const Text(
-                            'One operational workspace for your fleet, fuel, trips, and delivery performance.',
-                            style: TextStyle(
+                          Text(
+                            l10n.welcomeSubtitle,
+                            style: const TextStyle(
                                 color: Color(0xFFC8D8E9), height: 1.45),
                           ),
                           const SizedBox(height: AppSpacing.xxl),
@@ -174,15 +202,15 @@ class WelcomeScreen extends StatelessWidget {
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(15))),
                               icon: const Icon(Icons.arrow_forward),
-                              label: const Text('Open N1 TRANSPORTATION',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.w800)),
+                              label: Text(l10n.openApp,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w800)),
                             ),
                           ),
                           const SizedBox(height: AppSpacing.xs),
-                          const Center(
-                              child: Text('Operations made simple',
-                                  style: TextStyle(
+                          Center(
+                              child: Text(l10n.operationsMadeSimple,
+                                  style: const TextStyle(
                                       color: Color(0xFFAEC3D8), fontSize: 12))),
                         ],
                       ),
@@ -191,9 +219,23 @@ class WelcomeScreen extends StatelessWidget {
                 },
               ),
             ),
+            SafeArea(
+              child: Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 14, 16, 0),
+                  child: LanguageToggleButton(
+                    locale: locale,
+                    onLocaleChanged: onLocaleChanged,
+                    light: true,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       );
+  }
 }
 
 class RoleSelectionScreen extends StatelessWidget {
@@ -203,7 +245,9 @@ class RoleSelectionScreen extends StatelessWidget {
   final ValueChanged<AppRole> onSelect;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
         appBar: AppBar(
           leading: BackButton(onPressed: onBack),
           title: const _BrandMark(),
@@ -222,19 +266,19 @@ class RoleSelectionScreen extends StatelessWidget {
                         padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                         sliver: SliverMainAxisGroup(
                           slivers: [
-                            const SliverToBoxAdapter(
+                            SliverToBoxAdapter(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Select your role',
-                                      style: TextStyle(
+                                  Text(l10n.selectRoleTitle,
+                                      style: const TextStyle(
                                           fontSize: 29,
                                           fontWeight: FontWeight.w900)),
-                                  SizedBox(height: 8),
-                                  Text(
-                                      'Your workspace is tailored to the work you do.',
-                                      style: TextStyle(color: AppColors.muted)),
-                                  SizedBox(height: 24),
+                                  const SizedBox(height: 8),
+                                  Text(l10n.selectRoleSubtitle,
+                                      style: const TextStyle(
+                                          color: AppColors.muted)),
+                                  const SizedBox(height: 24),
                                 ],
                               ),
                             ),
@@ -260,11 +304,10 @@ class RoleSelectionScreen extends StatelessWidget {
                             ),
                             const SliverToBoxAdapter(
                                 child: SizedBox(height: 12)),
-                            const SliverToBoxAdapter(
+                            SliverToBoxAdapter(
                               child: Center(
-                                child: Text(
-                                    'You can switch roles from the dashboard later.',
-                                    style: TextStyle(
+                                child: Text(l10n.selectRoleFooter,
+                                    style: const TextStyle(
                                         color: AppColors.muted, fontSize: 12)),
                               ),
                             ),
@@ -279,6 +322,7 @@ class RoleSelectionScreen extends StatelessWidget {
           ),
         ),
       );
+  }
 }
 
 class OnboardingScreen extends StatefulWidget {
@@ -344,28 +388,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final pages = [
       _OnboardingPage(
         role: widget.role,
         icon: widget.role.icon,
-        eyebrow: 'YOUR WORKSPACE',
-        title: 'Built for ${widget.role.label}.',
-        body: widget.role.description,
+        eyebrow: l10n.onboardingWorkspaceEyebrow,
+        title: l10n.onboardingBuiltFor(widget.role.label(context)),
+        body: widget.role.description(context),
       ),
       _OnboardingPage(
         role: widget.role,
         icon: Icons.account_tree_outlined,
-        eyebrow: 'ONE CLEAR FLOW',
-        title: _flowTitle(widget.role),
-        body: _flowBody(widget.role),
+        eyebrow: l10n.onboardingFlowEyebrow,
+        title: _flowTitle(context, widget.role),
+        body: _flowBody(context, widget.role),
       ),
       _OnboardingPage(
         role: widget.role,
         icon: Icons.verified_user_outlined,
-        eyebrow: 'READY WHEN YOU ARE',
-        title: 'Stay in control, anywhere.',
-        body:
-            'Important updates, clear next steps, and practical information are always within reach.',
+        eyebrow: l10n.onboardingReadyEyebrow,
+        title: l10n.onboardingReadyTitle,
+        body: l10n.onboardingReadyBody,
       ),
     ];
     return Scaffold(
@@ -398,8 +442,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   Semantics(
                     liveRegion: true,
                     child: Text(
-                      'Your workspace will open automatically',
-                      style: TextStyle(color: AppColors.muted, fontSize: 12),
+                      l10n.onboardingAutoAdvance,
+                      style: const TextStyle(
+                          color: AppColors.muted, fontSize: 12),
                     ),
                   ),
                 ],
@@ -444,7 +489,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
         appBar: AppBar(
           leading: BackButton(onPressed: widget.onBack),
           title: const _BrandMark(),
@@ -459,13 +506,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   _RoleIcon(role: widget.role, size: 58),
                   const SizedBox(height: 24),
-                  Text('Welcome back',
+                  Text(l10n.welcomeBack,
                       style: Theme.of(context)
                           .textTheme
                           .headlineMedium
                           ?.copyWith(fontWeight: FontWeight.w900)),
                   const SizedBox(height: 7),
-                  Text('Sign in to your ${widget.role.label} workspace.',
+                  Text(
+                      l10n.signInToWorkspace(widget.role.label(context)),
                       style: const TextStyle(color: AppColors.muted)),
                   const SizedBox(height: 28),
                   Container(
@@ -478,12 +526,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: widget.role.foregroundColor),
                       const SizedBox(width: 10),
                       Expanded(
-                          child: Text('Signing in as ${widget.role.label}',
+                          child: Text(
+                              l10n.signingInAs(widget.role.label(context)),
                               style: const TextStyle(
                                   fontWeight: FontWeight.w800))),
                       TextButton(
                           onPressed: widget.onChangeRole,
-                          child: const Text('Change'))
+                          child: Text(l10n.change))
                     ]),
                   ),
                   const SizedBox(height: 22),
@@ -501,11 +550,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               ? const [AutofillHints.email]
                               : const [AutofillHints.username],
                           decoration: InputDecoration(
-                              labelText: widget.role.signInLabel,
+                              labelText: widget.role.signInLabel(context),
                               prefixIcon: const Icon(Icons.person_outline)),
                           validator: (value) => value == null ||
                                   value.trim().isEmpty
-                              ? 'Enter your ${widget.role.signInLabel.toLowerCase()}'
+                              ? l10n.enterYourField(
+                                  widget.role.signInLabel(context).toLowerCase())
                               : null,
                         ),
                         const SizedBox(height: 14),
@@ -516,20 +566,20 @@ class _LoginScreenState extends State<LoginScreen> {
                           autofillHints: const [AutofillHints.password],
                           onFieldSubmitted: (_) => _submit(),
                           decoration: InputDecoration(
-                              labelText: 'Password',
+                              labelText: l10n.password,
                               prefixIcon: const Icon(Icons.lock_outline),
                               suffixIcon: IconButton(
                                   onPressed: () => setState(
                                       () => hidePassword = !hidePassword),
                                   tooltip: hidePassword
-                                      ? 'Show password'
-                                      : 'Hide password',
+                                      ? l10n.showPassword
+                                      : l10n.hidePassword,
                                   icon: Icon(hidePassword
                                       ? Icons.visibility_outlined
                                       : Icons.visibility_off_outlined))),
                           validator: (value) =>
                               value == null || value.length < 4
-                                  ? 'Enter a valid password'
+                                  ? l10n.enterValidPassword
                                   : null,
                         ),
                       ],
@@ -539,28 +589,28 @@ class _LoginScreenState extends State<LoginScreen> {
                       alignment: Alignment.centerRight,
                       child: TextButton(
                           onPressed: () => ScaffoldMessenger.of(context)
-                                  .showSnackBar(const SnackBar(
-                                content: Text(
-                                    'Please contact N1 TRANSPORTATION support to reset your password.'),
+                                  .showSnackBar(SnackBar(
+                                content: Text(l10n.forgotPasswordMessage),
                               )),
-                          child: const Text('Forgot password?'))),
+                          child: Text(l10n.forgotPassword))),
                   const SizedBox(height: 16),
                   PrimaryButton(
-                      label: 'Sign in',
+                      label: l10n.signIn,
                       icon: Icons.login,
                       isLoading: isLoading,
                       onPressed: _submit),
                   const SizedBox(height: 18),
-                  const Center(
-                      child: Text('Demo access · No account creation required',
-                          style:
-                              TextStyle(color: AppColors.muted, fontSize: 12))),
+                  Center(
+                      child: Text(l10n.demoAccessNote,
+                          style: const TextStyle(
+                              color: AppColors.muted, fontSize: 12))),
                 ],
               ),
             ),
           ),
         ),
       );
+  }
 }
 
 class _RoleCard extends StatefulWidget {
@@ -578,6 +628,7 @@ class _RoleCardState extends State<_RoleCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final role = widget.role;
     final active = hovered || focused;
     final neutralBorder = Theme.of(context).brightness == Brightness.dark
@@ -585,7 +636,7 @@ class _RoleCardState extends State<_RoleCard> {
         : const Color(0xFFE2E8F0);
     return Semantics(
       button: true,
-      label: 'Continue as ${role.label}',
+      label: l10n.continueAsRole(role.label(context)),
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         onEnter: (_) => setState(() => hovered = true),
@@ -632,11 +683,11 @@ class _RoleCardState extends State<_RoleCard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(role.label,
+                          Text(role.label(context),
                               style: const TextStyle(
                                   fontSize: 17, fontWeight: FontWeight.w900)),
                           const SizedBox(height: 5),
-                          Text(role.description,
+                          Text(role.description(context),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
@@ -841,20 +892,22 @@ class _OnboardingPage extends StatelessWidget {
       );
 }
 
-String _flowTitle(AppRole role) => switch (role) {
-      AppRole.driver => 'From assigned trip to proof of delivery.',
-      AppRole.tripAdviser => 'Create, assign, and monitor every trip.',
-      AppRole.fuelStockManager => 'Approve fuel with live stock visibility.',
-      AppRole.ceo => 'See the business, not just the numbers.',
-    };
+String _flowTitle(BuildContext context, AppRole role) {
+  final l10n = AppLocalizations.of(context)!;
+  return switch (role) {
+    AppRole.driver => l10n.flowTitleDriver,
+    AppRole.tripAdviser => l10n.flowTitleTripAdviser,
+    AppRole.fuelStockManager => l10n.flowTitleFuelStockManager,
+    AppRole.ceo => l10n.flowTitleCeo,
+  };
+}
 
-String _flowBody(AppRole role) => switch (role) {
-      AppRole.driver =>
-        'See the next action immediately: start, navigate, load, deliver, and complete.',
-      AppRole.tripAdviser =>
-        'Set the vehicle, driver, pickup, delivery, material, and quantity in one clear workflow.',
-      AppRole.fuelStockManager =>
-        'Receive a request, approve or reject it, then record the fuel issued.',
-      AppRole.ceo =>
-        'Review delivery, active fleet, fuel usage, cost, and driver performance from one dashboard.',
-    };
+String _flowBody(BuildContext context, AppRole role) {
+  final l10n = AppLocalizations.of(context)!;
+  return switch (role) {
+    AppRole.driver => l10n.flowBodyDriver,
+    AppRole.tripAdviser => l10n.flowBodyTripAdviser,
+    AppRole.fuelStockManager => l10n.flowBodyFuelStockManager,
+    AppRole.ceo => l10n.flowBodyCeo,
+  };
+}

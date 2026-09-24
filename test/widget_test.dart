@@ -7,6 +7,24 @@ import 'package:n1_transaction/features/trips/trip_screens.dart';
 import 'package:n1_transaction/shared/widgets/ui_components.dart';
 import 'package:n1_transaction/features/profile/profile_screen.dart';
 import 'package:n1_transaction/features/auth/auth_flow.dart';
+import 'package:n1_transaction/l10n/generated/app_localizations.dart';
+
+const _testLocale = Locale('en');
+void _noopLocale(Locale _) {}
+
+String _roleLabel(AppRole role) => switch (role) {
+      AppRole.driver => 'Driver',
+      AppRole.tripAdviser => 'Trip Adviser',
+      AppRole.fuelStockManager => 'Fuel Stock Manager',
+      AppRole.ceo => 'CEO / Owner',
+    };
+
+Widget _wrap(Widget home) => MaterialApp(
+      locale: _testLocale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: home,
+    );
 
 void main() {
   testWidgets('quick actions open vehicle and searchable trip history',
@@ -15,8 +33,10 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester
-        .pumpWidget(MaterialApp(home: DriverShell(onThemeChanged: () {})));
+    await tester.pumpWidget(_wrap(DriverShell(
+        onThemeChanged: () {},
+        locale: _testLocale,
+        onLocaleChanged: _noopLocale)));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('My vehicle'));
     await tester.pumpAndSettle();
@@ -83,23 +103,25 @@ void main() {
     AppRole.fuelStockManager,
     AppRole.ceo
   ]) {
-    testWidgets('${role.label} navigation opens the correct profile',
+    testWidgets('${_roleLabel(role)} navigation opens the correct profile',
         (tester) async {
       tester.view.physicalSize = const Size(430, 932);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      await tester.pumpWidget(MaterialApp(
-          home: RoleShell(
+      await tester.pumpWidget(_wrap(RoleShell(
         role: role,
         onSwitchRole: () {},
         onThemeChanged: () {},
+        locale: _testLocale,
+        onLocaleChanged: _noopLocale,
       )));
       await tester.pumpAndSettle();
       expect(find.byType(AppNavigationBar), findsOneWidget);
       await tester.tap(find.byTooltip('Profile'));
       await tester.pumpAndSettle();
-      expect(find.text('${role.label} · ${role.demoAccount}'), findsOneWidget);
+      expect(find.text('${_roleLabel(role)} · ${role.demoAccount}'),
+          findsOneWidget);
       expect(find.text('Driver ID · DR-001'), findsNothing);
       await tester.tap(find.byTooltip('Notifications'));
       await tester.pumpAndSettle();
@@ -116,8 +138,10 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester
-        .pumpWidget(MaterialApp(home: ProfileScreen(onThemeChanged: () {})));
+    await tester.pumpWidget(_wrap(ProfileScreen(
+        onThemeChanged: () {},
+        locale: _testLocale,
+        onLocaleChanged: _noopLocale)));
     expect(find.text('Active Driver'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.tap(find.byTooltip('Edit profile'));
@@ -140,7 +164,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(const MaterialApp(home: TripDetailScreen()));
+    await tester.pumpWidget(_wrap(const TripDetailScreen()));
     expect(find.text('N1-2034'), findsOneWidget);
     expect(find.text('25 Tons'), findsOneWidget);
     expect(find.text('PP 3A-1234'), findsOneWidget);
@@ -171,9 +195,11 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: DriverShell(onThemeChanged: () {}),
-      ),
+      _wrap(DriverShell(
+        onThemeChanged: () {},
+        locale: _testLocale,
+        onLocaleChanged: _noopLocale,
+      )),
     );
     await tester.pumpAndSettle();
 
@@ -190,9 +216,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: CeoDashboard(onSwitchRole: () {}),
-      ),
+      _wrap(CeoDashboard(onSwitchRole: () {})),
     );
     await tester.pumpAndSettle();
 

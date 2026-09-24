@@ -4,11 +4,12 @@ import '../../core/theme/app_colors.dart';
 import '../../shared/models/trip.dart';
 import '../../shared/widgets/ui_components.dart';
 import '../../shared/widgets/trip_presentation.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 class TripsScreen extends StatefulWidget {
-  const TripsScreen(
-      {super.key, this.initialFilter = 'All', this.title = 'My trips'});
-  final String initialFilter, title;
+  const TripsScreen({super.key, this.initialFilter = 'All', this.title});
+  final String initialFilter;
+  final String? title;
   @override
   State<TripsScreen> createState() => _TripsScreenState();
 }
@@ -20,42 +21,49 @@ class _TripsScreenState extends State<TripsScreen> {
       text.toLowerCase().contains(query.trim().toLowerCase());
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final current = filter != 'Completed' &&
         matches('${demoTrip.id} ${demoTrip.pickup} ${demoTrip.destination}');
     final completed =
         filter != 'Today' && matches('N1-2027 Factory B Warehouse C');
+    String filterLabel(String value) => switch (value) {
+          'All' => l10n.filterAll,
+          'Today' => l10n.filterToday,
+          'Completed' => l10n.completed,
+          _ => value,
+        };
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(title: Text(widget.title ?? l10n.myTrips)),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [
           TextField(
             onChanged: (value) => setState(() => query = value),
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.search),
-              hintText: 'Search trip ID or destination',
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.search),
+              hintText: l10n.searchTripHint,
             ),
           ),
           const SizedBox(height: 14),
           Wrap(spacing: 8, children: [
             for (final value in ['All', 'Today', 'Completed'])
               ChoiceChip(
-                  label: Text(value),
+                  label: Text(filterLabel(value)),
                   selected: filter == value,
                   onSelected: (_) => setState(() => filter = value)),
           ]),
           if (!current && !completed)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 48),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 48),
               child: EmptyState(
-                  title: 'No trips found',
-                  message: 'Try another trip ID or destination.'),
+                  title: l10n.noTripsFound,
+                  message: l10n.tryAnotherSearch),
             ),
           if (current) ...[
             const SizedBox(height: 20),
-            const Text(
-              'TODAY',
-              style: TextStyle(
+            Text(
+              l10n.todaySectionLabel,
+              style: const TextStyle(
                 color: AppColors.muted,
                 fontWeight: FontWeight.w800,
                 fontSize: 12,
@@ -71,9 +79,9 @@ class _TripsScreenState extends State<TripsScreen> {
           ],
           if (completed) ...[
             const SizedBox(height: 18),
-            const Text(
-              'RECENTLY COMPLETED',
-              style: TextStyle(
+            Text(
+              l10n.recentlyCompleted,
+              style: const TextStyle(
                 color: AppColors.muted,
                 fontWeight: FontWeight.w800,
                 fontSize: 12,
@@ -96,35 +104,37 @@ class _TripsScreenState extends State<TripsScreen> {
 class CompletedTripScreen extends StatelessWidget {
   const CompletedTripScreen({super.key});
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Completed trip')),
-        body: ListView(padding: const EdgeInsets.all(20), children: [
-          const TripSummaryCard(
-              id: 'N1-2027',
-              pickup: 'Factory B',
-              destination: 'Warehouse C',
-              completed: true),
-          const SizedBox(height: 24),
-          const SectionHeader(title: 'Delivery summary'),
-          const SizedBox(height: 12),
-          const Card(
-              child: Padding(
-                  padding: EdgeInsets.all(18),
-                  child: Column(children: [
-                    InfoRow(
-                        icon: Icons.tag, label: 'Trip ID', value: 'N1-2027'),
-                    Divider(),
-                    InfoRow(
-                        icon: Icons.check_circle_outline,
-                        label: 'Status',
-                        value: 'Completed'),
-                  ]))),
-          const SizedBox(height: 16),
-          const Text(
-              'Delivery documents and recorded quantities are not available for this trip.',
-              style: TextStyle(color: AppColors.muted)),
-        ]),
-      );
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.completedTripTitle)),
+      body: ListView(padding: const EdgeInsets.all(20), children: [
+        const TripSummaryCard(
+            id: 'N1-2027',
+            pickup: 'Factory B',
+            destination: 'Warehouse C',
+            completed: true),
+        const SizedBox(height: 24),
+        SectionHeader(title: l10n.deliverySummary),
+        const SizedBox(height: 12),
+        Card(
+            child: Padding(
+                padding: const EdgeInsets.all(18),
+                child: Column(children: [
+                  InfoRow(
+                      icon: Icons.tag, label: l10n.tripId, value: 'N1-2027'),
+                  const Divider(),
+                  InfoRow(
+                      icon: Icons.check_circle_outline,
+                      label: l10n.status,
+                      value: l10n.completed),
+                ]))),
+        const SizedBox(height: 16),
+        Text(l10n.deliveryDocsUnavailable,
+            style: const TextStyle(color: AppColors.muted)),
+      ]),
+    );
+  }
 }
 
 class _TripListItem extends StatelessWidget {
@@ -148,8 +158,10 @@ class _TripListItem extends StatelessWidget {
 class TripDetailScreen extends StatelessWidget {
   const TripDetailScreen({super.key});
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Trip details')),
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
+        appBar: AppBar(title: Text(l10n.tripDetailsTitle)),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Center(
@@ -180,8 +192,8 @@ class TripDetailScreen extends StatelessWidget {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                  const Text('Trip ID',
-                                      style: TextStyle(
+                                  Text(l10n.tripId,
+                                      style: const TextStyle(
                                           color: Colors.white54, fontSize: 12)),
                                   const SizedBox(height: 7),
                                   Text(demoTrip.id,
@@ -190,7 +202,7 @@ class TripDetailScreen extends StatelessWidget {
                                           fontSize: 26,
                                           fontWeight: FontWeight.w600)),
                                 ])),
-                            const TripStatusPill(label: 'Assigned', dark: true),
+                            TripStatusPill(label: l10n.assignedStatus, dark: true),
                           ]),
                       const SizedBox(height: 26),
                       const TripProgressLine(dark: true),
@@ -206,7 +218,7 @@ class TripDetailScreen extends StatelessWidget {
                             const SizedBox(width: 16),
                             Expanded(
                                 child: TripFact(
-                                    label: 'Estimated 10:00 AM',
+                                    label: l10n.estimatedTime('10:00 AM'),
                                     value: demoTrip.destination,
                                     dark: true)),
                           ]),
@@ -222,16 +234,17 @@ class TripDetailScreen extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                   TripFact(
-                                      label: 'Material',
+                                      label: l10n.material,
                                       value: demoTrip.material,
                                       dark: true),
                                   const SizedBox(height: 22),
                                   TripFact(
-                                      label: 'Quantity',
+                                      label: l10n.quantity,
                                       value: demoTrip.quantity,
                                       dark: true),
                                   const SizedBox(height: 22),
                                   TripFact(
+                                      // TODO: no matching ARB key for "Estimated distance"; left as literal.
                                       label: 'Estimated distance',
                                       value: demoTrip.distance,
                                       dark: true),
@@ -257,7 +270,7 @@ class TripDetailScreen extends StatelessWidget {
                           const SizedBox(width: 12),
                           Expanded(
                               child: TripFact(
-                                  label: 'Assigned vehicle',
+                                  label: l10n.assignedVehicleLabel,
                                   value: demoTrip.vehicle,
                                   dark: true)),
                           const Icon(Icons.verified_outlined,
@@ -268,50 +281,54 @@ class TripDetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               PrimaryButton(
-                  label: 'Start trip',
+                  label: l10n.startTrip,
                   icon: Icons.play_arrow,
                   onPressed: () => _confirmStart(context)),
             ]),
           )),
         ),
       );
+  }
 }
 
-void _confirmStart(BuildContext context) => showModalBottomSheet(
-      context: context,
-      showDragHandle: true,
-      builder: (sheetContext) => Padding(
-        padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.route, size: 40, color: AppColors.navy),
-            const SizedBox(height: 14),
-            const Text(
-              'Start this trip?',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Confirm when you are ready to head to the pickup location.',
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 22),
-            PrimaryButton(
-              label: 'Yes, start trip',
-              icon: Icons.check,
-              onPressed: () {
-                Navigator.pop(sheetContext);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ActiveTripScreen()),
-                );
-              },
-            ),
-          ],
-        ),
+void _confirmStart(BuildContext context) {
+  final l10n = AppLocalizations.of(context)!;
+  showModalBottomSheet(
+    context: context,
+    showDragHandle: true,
+    builder: (sheetContext) => Padding(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.route, size: 40, color: AppColors.navy),
+          const SizedBox(height: 14),
+          Text(
+            l10n.startTripConfirmTitle,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.startTripConfirmBody,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 22),
+          PrimaryButton(
+            label: l10n.yesStartTrip,
+            icon: Icons.check,
+            onPressed: () {
+              Navigator.pop(sheetContext);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const ActiveTripScreen()),
+              );
+            },
+          ),
+        ],
       ),
-    );
+    ),
+  );
+}
 
 class _LocationCard extends StatelessWidget {
   const _LocationCard({
@@ -342,28 +359,36 @@ class ActiveTripScreen extends StatefulWidget {
 
 class _ActiveTripScreenState extends State<ActiveTripScreen> {
   var step = 1;
-  final labels = const [
-    'Started',
-    'Going to pickup',
-    'Arrived at pickup',
-    'Loading material',
-    'Delivering',
-    'Arrived at destination',
-    'Unloading',
-    'Completed',
-  ];
+  List<String> _labels(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      l10n.stageStarted,
+      l10n.stageGoingToPickup,
+      l10n.stageArrivedAtPickup,
+      l10n.stageLoadingMaterial,
+      l10n.stageDelivering,
+      l10n.stageArrivedAtDestination,
+      l10n.stageUnloading,
+      l10n.stageCompleted,
+    ];
+  }
+
   void _advance() {
     if (step == 3) {
       Navigator.push(
           context, MaterialPageRoute(builder: (_) => const LoadingScreen()));
     } else {
-      setState(() => step = (step + 1).clamp(0, labels.length - 1));
+      setState(
+          () => step = (step + 1).clamp(0, _labels(context).length - 1));
     }
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Active trip')),
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final labels = _labels(context);
+    return Scaffold(
+        appBar: AppBar(title: Text(l10n.activeTripTitle)),
         bottomNavigationBar: SafeArea(
           top: false,
           child: Padding(
@@ -385,12 +410,12 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                       icon: const Icon(Icons.arrow_forward),
                       label: Text(
                           step < 2
-                              ? 'Arrived at pickup'
+                              ? l10n.arrivedAtPickup
                               : step == 2
-                                  ? 'Start loading'
+                                  ? l10n.startLoading
                                   : step == 3
-                                      ? 'Confirm loading'
-                                      : 'Continue trip',
+                                      ? l10n.confirmLoading
+                                      : l10n.continueTrip,
                           style: const TextStyle(fontWeight: FontWeight.w700)),
                     ),
                   ),
@@ -415,8 +440,8 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                            const Text('Trip ID',
-                                style: TextStyle(
+                            Text(l10n.tripId,
+                                style: const TextStyle(
                                     color: Colors.white54, fontSize: 12)),
                             const SizedBox(height: 7),
                             Text(demoTrip.id,
@@ -425,7 +450,7 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                                     fontSize: 26,
                                     fontWeight: FontWeight.w600)),
                           ])),
-                      const TripStatusPill(label: 'In progress', dark: true),
+                      TripStatusPill(label: l10n.inProgressStatus, dark: true),
                     ]),
                     const SizedBox(height: 20),
                     Row(children: [
@@ -458,7 +483,7 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                         children: [
                           Expanded(
                               child: TripFact(
-                                  label: 'Pickup',
+                                  label: l10n.pickup,
                                   value: demoTrip.pickup,
                                   dark: true)),
                           const Padding(
@@ -467,15 +492,15 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                                   size: 18, color: tripAccent)),
                           Expanded(
                               child: TripFact(
-                                  label: 'Delivery',
+                                  label: l10n.delivery,
                                   value: demoTrip.destination,
                                   dark: true)),
                         ]),
                     const Padding(
                         padding: EdgeInsets.symmetric(vertical: 22),
                         child: Divider(color: Colors.white10, height: 1)),
-                    const Text('Trip progress',
-                        style: TextStyle(
+                    Text(l10n.tripProgress,
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.w600)),
@@ -501,7 +526,7 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                             child: TripFact(
-                                label: 'Assigned vehicle',
+                                label: l10n.assignedVehicleLabel,
                                 value: demoTrip.vehicle,
                                 dark: true)),
                       ]),
@@ -511,6 +536,7 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
           )),
         ),
       );
+  }
 }
 
 class _TimelineRow extends StatelessWidget {
@@ -522,8 +548,15 @@ class _TimelineRow extends StatelessWidget {
   final String label;
   final bool current, done, last;
   @override
-  Widget build(BuildContext context) => Semantics(
-        label: '$label, ${done ? 'complete' : current ? 'current' : 'pending'}',
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final state = done
+        ? l10n.semStateComplete
+        : current
+            ? l10n.semStateCurrent
+            : l10n.semStatePending;
+    return Semantics(
+        label: l10n.semTimelineLabel(label, state),
         child: ExcludeSemantics(
             child: Padding(
           padding: EdgeInsets.only(bottom: last ? 0 : 8),
@@ -582,28 +615,32 @@ class _TimelineRow extends StatelessWidget {
           ]),
         )),
       );
+  }
 }
 
 class LoadingScreen extends StatelessWidget {
   const LoadingScreen({super.key});
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Loading material')),
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
+        appBar: AppBar(title: Text(l10n.loadingMaterialTitle)),
         body: ListView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
-            const _LocationCard(
+            _LocationCard(
               icon: Icons.inventory_2_outlined,
+              // Note: 'Cement' matches demoTrip.material demo data, kept as literal (no cementTruck key match).
               title: 'Cement',
-              value: 'Planned quantity: 25 Tons',
+              value: l10n.plannedQuantity('25 Tons'),
               color: AppColors.blue,
             ),
             const SizedBox(height: 20),
-            const TextField(
+            TextField(
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                labelText: 'Actual quantity',
-                suffixText: 'Tons',
+                labelText: l10n.actualQuantity,
+                suffixText: l10n.tons,
               ),
             ),
             const SizedBox(height: 16),
@@ -624,7 +661,7 @@ class LoadingScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             PrimaryButton(
-              label: 'Confirm loading',
+              label: l10n.confirmLoading,
               icon: Icons.check_circle_outline,
               onPressed: () => Navigator.pushReplacement(
                 context,
@@ -634,19 +671,22 @@ class LoadingScreen extends StatelessWidget {
           ],
         ),
       );
+  }
 }
 
 class DeliveryProofScreen extends StatelessWidget {
   const DeliveryProofScreen({super.key});
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Delivery proof')),
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
+        appBar: AppBar(title: Text(l10n.deliveryProofTitle)),
         body: ListView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
-            const Text(
-              'Capture delivery details',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+            Text(
+              l10n.captureDeliveryDetails,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: 20),
             Container(
@@ -664,17 +704,17 @@ class DeliveryProofScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            const TextField(
-              decoration: InputDecoration(labelText: 'Receiver name'),
+            TextField(
+              decoration: InputDecoration(labelText: l10n.receiverName),
             ),
             const SizedBox(height: 12),
-            const TextField(
+            TextField(
               maxLines: 2,
-              decoration: InputDecoration(labelText: 'Delivery note'),
+              decoration: InputDecoration(labelText: l10n.deliveryNote),
             ),
             const SizedBox(height: 24),
             PrimaryButton(
-              label: 'Complete delivery',
+              label: l10n.completeDelivery,
               icon: Icons.task_alt,
               onPressed: () => Navigator.pushReplacement(
                 context,
@@ -684,12 +724,15 @@ class DeliveryProofScreen extends StatelessWidget {
           ],
         ),
       );
+  }
 }
 
 class TripSuccessScreen extends StatelessWidget {
   const TripSuccessScreen({super.key});
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
         body: SafeArea(
           child: Center(
             child: Padding(
@@ -703,9 +746,9 @@ class TripSuccessScreen extends StatelessWidget {
                     child: Icon(Icons.check, color: Colors.white, size: 52),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
-                    'Trip completed!',
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900),
+                  Text(
+                    l10n.tripCompletedTitle,
+                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900),
                   ),
                   const SizedBox(height: 8),
                   const Text(
@@ -714,7 +757,7 @@ class TripSuccessScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 28),
                   PrimaryButton(
-                    label: 'Back to home',
+                    label: l10n.backToHome,
                     icon: Icons.home_outlined,
                     onPressed: () => Navigator.of(context)
                         .popUntil((route) => route.isFirst),
@@ -725,4 +768,5 @@ class TripSuccessScreen extends StatelessWidget {
           ),
         ),
       );
+  }
 }

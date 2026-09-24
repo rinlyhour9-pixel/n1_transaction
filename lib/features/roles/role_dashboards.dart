@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/theme/app_colors.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../shared/widgets/ui_components.dart';
 import '../auth/auth_flow.dart';
 import '../profile/profile_screen.dart';
+import 'fuel_reports_screen.dart';
+import 'trip_adviser_screens.dart';
 
 class RoleShell extends StatefulWidget {
   const RoleShell(
       {super.key,
       required this.role,
       required this.onSwitchRole,
-      required this.onThemeChanged});
+      required this.onThemeChanged,
+      required this.locale,
+      required this.onLocaleChanged});
   final AppRole role;
   final VoidCallback onSwitchRole, onThemeChanged;
+  final Locale locale;
+  final ValueChanged<Locale> onLocaleChanged;
 
   @override
   State<RoleShell> createState() => _RoleShellState();
@@ -39,37 +46,41 @@ class _RoleShellState extends State<RoleShell> {
       AppRole.ceo => 'N1 Owner',
       AppRole.driver => 'Dara Sok',
     };
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: IndexedStack(index: index, children: [
         dashboard,
         Scaffold(
-          appBar: AppBar(title: const Text('Notifications')),
-          body: const Center(child: Text('No new notifications')),
+          appBar: AppBar(title: Text(l10n.notifications)),
+          body: Center(child: Text(l10n.notifNoneTitle)),
         ),
         ProfileScreen(
           name: name,
-          accountLabel: '${widget.role.label} · ${widget.role.demoAccount}',
+          accountLabel:
+              '${widget.role.label(context)} · ${widget.role.demoAccount}',
           isDriver: false,
           onThemeChanged: widget.onThemeChanged,
           onLogout: widget.onSwitchRole,
+          locale: widget.locale,
+          onLocaleChanged: widget.onLocaleChanged,
         ),
       ]),
       bottomNavigationBar: AppNavigationBar(
         selectedIndex: index,
         onDestinationSelected: (value) => setState(() => index = value),
-        destinations: const [
+        destinations: [
           NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
-              label: 'Home'),
+              icon: const Icon(Icons.home_outlined),
+              selectedIcon: const Icon(Icons.home),
+              label: l10n.navHome),
           NavigationDestination(
-              icon: Icon(Icons.notifications_outlined),
-              selectedIcon: Icon(Icons.notifications),
-              label: 'Notifications'),
+              icon: const Icon(Icons.notifications_outlined),
+              selectedIcon: const Icon(Icons.notifications),
+              label: l10n.navNotifications),
           NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person),
-              label: 'Profile'),
+              icon: const Icon(Icons.person_outline),
+              selectedIcon: const Icon(Icons.person),
+              label: l10n.navProfile),
         ],
       ),
     );
@@ -81,110 +92,110 @@ class TripAdviserDashboard extends StatelessWidget {
   final VoidCallback onSwitchRole;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const CreateTripScreen()),
-          ),
-          icon: const Icon(Icons.add),
-          label: const Text('Create trip'),
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const CreateTripScreen()),
         ),
-        body: RefreshIndicator(
-          onRefresh: () async => await Future<void>.delayed(
-            const Duration(milliseconds: 600),
-          ),
-          child: _RoleContent(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            children: [
-              const _RoleHeader(role: AppRole.tripAdviser, name: 'Sokha Chann'),
-              const SizedBox(height: 26),
-              const SectionHeader(title: 'Today’s trip control'),
-              const SizedBox(height: 8),
-              const MetricGrid(
-                children: [
-                  MetricCard(
-                      value: '08',
-                      label: 'Scheduled',
-                      icon: Icons.event_note_outlined,
-                      color: AppColors.blue),
-                  MetricCard(
-                      value: '05',
-                      label: 'In transit',
-                      icon: Icons.route_outlined,
-                      color: Color(0xFF7557D9)),
-                  MetricCard(
-                      value: '02',
-                      label: 'Need action',
-                      icon: Icons.error_outline,
-                      color: AppColors.warning),
-                ],
-              ),
-              const SizedBox(height: 26),
-              SectionHeader(
-                  title: 'Active trips',
-                  action: 'View all',
-                  onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Showing the latest active trips.')),
-                      )),
-              const SizedBox(height: 8),
-              _TripRow(
-                id: 'N1-2034',
-                route: 'N1 Factory  →  Construction Site A',
-                status: 'In transit',
-                statusColor: AppColors.info,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const CreateTripScreen(editing: true)),
-                ),
-              ),
-              const SizedBox(height: 12),
-              const _TripRow(
-                id: 'N1-2029',
-                route: 'Factory B  →  Warehouse C',
-                status: 'Completed',
-                statusColor: AppColors.success,
-              ),
-              const SizedBox(height: 26),
-              const SectionHeader(title: 'Trip tools'),
-              const SizedBox(height: 8),
-              ActionGrid(
-                children: [
-                  _ToolTile(
-                      icon: Icons.add_road_outlined,
-                      label: 'Create trip',
-                      color: AppColors.blue,
-                      onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const CreateTripScreen()))),
-                  _ToolTile(
-                      icon: Icons.radar_outlined,
-                      label: 'Track fleet',
-                      color: AppColors.success,
-                      onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text(
-                                    'Fleet tracking view is ready for live location data.')),
-                          )),
-                  _ToolTile(
-                      icon: Icons.description_outlined,
-                      label: 'Trip reports',
-                      color: const Color(0xFF7557D9),
-                      onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text(
-                                    'Trip reports are prepared from completed trips.')),
-                          )),
-                ],
-              ),
-              const SizedBox(height: 88),
-            ],
-          ),
+        icon: const Icon(Icons.add),
+        label: Text(l10n.createTrip),
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async => await Future<void>.delayed(
+          const Duration(milliseconds: 600),
         ),
-      );
+        child: _RoleContent(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          children: [
+            const _RoleHeader(role: AppRole.tripAdviser, name: 'Sokha Chann'),
+            const SizedBox(height: 26),
+            SectionHeader(title: l10n.todaysTripControl),
+            const SizedBox(height: 8),
+            MetricGrid(
+              children: [
+                MetricCard(
+                    value: '08',
+                    label: l10n.scheduled,
+                    icon: Icons.event_note_outlined,
+                    color: AppColors.blue),
+                MetricCard(
+                    value: '05',
+                    label: l10n.inTransit,
+                    icon: Icons.route_outlined,
+                    color: const Color(0xFF7557D9)),
+                MetricCard(
+                    value: '02',
+                    label: l10n.needAction,
+                    icon: Icons.error_outline,
+                    color: AppColors.warning),
+              ],
+            ),
+            const SizedBox(height: 26),
+            SectionHeader(
+                title: l10n.activeTrips,
+                action: l10n.viewAll,
+                onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.showingLatestTrips)),
+                    )),
+            const SizedBox(height: 8),
+            _TripRow(
+              id: 'N1-2034',
+              route: 'N1 Factory  →  Construction Site A',
+              status: l10n.inTransit,
+              statusColor: AppColors.info,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const CreateTripScreen(editing: true)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            _TripRow(
+              id: 'N1-2029',
+              route: 'Factory B  →  Warehouse C',
+              status: l10n.completed,
+              statusColor: AppColors.success,
+            ),
+            const SizedBox(height: 26),
+            SectionHeader(title: l10n.tripTools),
+            const SizedBox(height: 8),
+            ActionGrid(
+              children: [
+                _ToolTile(
+                    icon: Icons.add_road_outlined,
+                    label: l10n.createTrip,
+                    color: AppColors.blue,
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const CreateTripScreen()))),
+                _ToolTile(
+                    icon: Icons.radar_outlined,
+                    label: l10n.trackFleet,
+                    color: AppColors.success,
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const TrackFleetScreen()))),
+                _ToolTile(
+                    icon: Icons.description_outlined,
+                    label: l10n.tripReports,
+                    color: const Color(0xFF7557D9),
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const TripReportsScreen()))),
+              ],
+            ),
+            const SizedBox(height: 88),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class CreateTripScreen extends StatefulWidget {
@@ -201,21 +212,25 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
   String material = 'Cement';
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
         appBar: AppBar(
-            title: Text(widget.editing ? 'Trip N1-2034' : 'Create a trip')),
+            title: Text(widget.editing
+                ? l10n.tripLabel('N1-2034')
+                : l10n.createATrip)),
         body: _RoleContent(
           maxWidth: 680,
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
-            const Text('Plan the trip',
-                style: TextStyle(fontSize: 23, fontWeight: FontWeight.w900)),
+            Text(l10n.planTheTrip,
+                style: const TextStyle(
+                    fontSize: 23, fontWeight: FontWeight.w900)),
             const SizedBox(height: 6),
-            const Text(
-                'Assign the vehicle and driver, then define the route and material.',
-                style: TextStyle(color: AppColors.muted)),
+            Text(l10n.planTheTripSubtitle,
+                style: const TextStyle(color: AppColors.muted)),
             const SizedBox(height: 24),
-            const _FieldTitle('Vehicle & driver'),
+            _FieldTitle(l10n.vehicleAndDriver),
             DropdownButtonFormField<String>(
               initialValue: vehicle,
               decoration: const InputDecoration(
@@ -246,20 +261,20 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
               onChanged: (value) => setState(() => driver = value!),
             ),
             const SizedBox(height: 24),
-            const _FieldTitle('Route'),
-            const TextField(
+            _FieldTitle(l10n.route),
+            TextField(
                 decoration: InputDecoration(
-                    labelText: 'Pickup location',
+                    labelText: l10n.pickupLocation,
                     hintText: 'N1 Cement Factory',
-                    prefixIcon: Icon(Icons.radio_button_checked))),
+                    prefixIcon: const Icon(Icons.radio_button_checked))),
             const SizedBox(height: 12),
-            const TextField(
+            TextField(
                 decoration: InputDecoration(
-                    labelText: 'Delivery location',
+                    labelText: l10n.deliveryLocation,
                     hintText: 'Construction Site A',
-                    prefixIcon: Icon(Icons.location_on_outlined))),
+                    prefixIcon: const Icon(Icons.location_on_outlined))),
             const SizedBox(height: 24),
-            const _FieldTitle('Material'),
+            _FieldTitle(l10n.material),
             DropdownButtonFormField<String>(
               initialValue: material,
               decoration: const InputDecoration(
@@ -271,28 +286,30 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
               onChanged: (value) => setState(() => material = value!),
             ),
             const SizedBox(height: 12),
-            const TextField(
+            TextField(
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                    labelText: 'Quantity',
-                    suffixText: 'Tons',
-                    prefixIcon: Icon(Icons.scale_outlined))),
+                    labelText: l10n.quantity,
+                    suffixText: l10n.tons,
+                    prefixIcon: const Icon(Icons.scale_outlined))),
             const SizedBox(height: 12),
-            const TextField(
+            TextField(
                 maxLines: 3,
                 decoration: InputDecoration(
-                    labelText: 'Trip note (optional)',
-                    prefixIcon: Icon(Icons.notes_outlined))),
+                    labelText: l10n.tripNoteOptional,
+                    prefixIcon: const Icon(Icons.notes_outlined))),
             const SizedBox(height: 28),
             PrimaryButton(
-              label:
-                  widget.editing ? 'Save trip changes' : 'Send trip to driver',
+              label: widget.editing
+                  ? l10n.saveTripChanges
+                  : l10n.sendTripToDriver,
               icon: Icons.send_outlined,
               onPressed: () => _showTripSent(context),
             ),
           ],
         ),
       );
+  }
 }
 
 class FuelStockManagerDashboard extends StatefulWidget {
@@ -308,14 +325,15 @@ class _FuelStockManagerDashboardState extends State<FuelStockManagerDashboard> {
   String firstStatus = 'Pending';
 
   void _updateFirstStatus(String status) {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => firstStatus = status);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(status == 'Approved'
-            ? '120 L approved for Dara Sok. Fuel stock will be updated on issue.'
-            : 'Fuel request rejected.'),
+            ? l10n.fuelApprovedMsg('120 L', 'Dara Sok')
+            : l10n.fuelRejectedMsg),
         action: SnackBarAction(
-          label: 'Undo',
+          label: l10n.undo,
           onPressed: () => setState(() => firstStatus = 'Pending'),
         ),
       ),
@@ -323,7 +341,9 @@ class _FuelStockManagerDashboardState extends State<FuelStockManagerDashboard> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
         body: _RoleContent(
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
@@ -337,8 +357,8 @@ class _FuelStockManagerDashboardState extends State<FuelStockManagerDashboard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('MAIN FUEL STOCK',
-                        style: TextStyle(
+                    Text(l10n.mainFuelStock,
+                        style: const TextStyle(
                             color: Colors.white70,
                             fontWeight: FontWeight.w800,
                             fontSize: 12)),
@@ -348,8 +368,8 @@ class _FuelStockManagerDashboardState extends State<FuelStockManagerDashboard> {
                             color: Colors.white,
                             fontSize: 38,
                             fontWeight: FontWeight.w900)),
-                    const Text('68% available · Reserve threshold: 20%',
-                        style: TextStyle(color: Colors.white70)),
+                    Text(l10n.availableReserve('68', '20'),
+                        style: const TextStyle(color: Colors.white70)),
                     const SizedBox(height: 14),
                     LinearProgressIndicator(
                         value: .68,
@@ -362,13 +382,13 @@ class _FuelStockManagerDashboardState extends State<FuelStockManagerDashboard> {
               ),
             ),
             const SizedBox(height: 25),
-            const SectionHeader(title: 'Fuel requests awaiting action'),
+            SectionHeader(title: l10n.fuelRequestsAwaiting),
             const SizedBox(height: 8),
             _FuelRequestCard(
               driver: 'Dara Sok',
               vehicle: 'PP 3A-1234',
               amount: '120 L',
-              reason: 'Current Trip · N1-2034',
+              reason: '${l10n.reasonCurrentTrip} · N1-2034',
               status: firstStatus,
               onApprove: () => _updateFirstStatus('Approved'),
               onReject: () => _updateFirstStatus('Rejected'),
@@ -378,31 +398,40 @@ class _FuelStockManagerDashboardState extends State<FuelStockManagerDashboard> {
               driver: 'Vannak Lim',
               vehicle: 'PP 2D-9090',
               amount: '80 L',
-              reason: 'Low fuel',
+              reason: l10n.reasonLowFuel,
               status: 'Pending',
               onApprove: () {},
               onReject: () {},
             ),
             const SizedBox(height: 25),
-            const SectionHeader(title: 'Today’s issuing summary'),
+            SectionHeader(title: l10n.todaysIssuingSummary),
             const SizedBox(height: 8),
-            const MetricGrid(
+            MetricGrid(
               children: [
                 MetricCard(
                     value: '620 L',
-                    label: 'Issued today',
+                    label: l10n.issuedToday,
                     icon: Icons.local_gas_station,
                     color: AppColors.warning),
                 MetricCard(
                     value: '06',
-                    label: 'Approved',
+                    label: l10n.statusApproved,
                     icon: Icons.task_alt,
                     color: AppColors.success),
               ],
             ),
+            const SizedBox(height: 25),
+            PrimaryButton(
+                label: l10n.fuelReports,
+                icon: Icons.description_outlined,
+                onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const FuelReportsScreen()))),
           ],
         ),
       );
+  }
 }
 
 class CeoDashboard extends StatelessWidget {
@@ -410,89 +439,80 @@ class CeoDashboard extends StatelessWidget {
   final VoidCallback onSwitchRole;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
         body: _RoleContent(
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
             const _RoleHeader(role: AppRole.ceo, name: 'N1 Owner'),
-            const SizedBox(height: 8),
-            const Text('Live operational performance across N1 TRANSPORTATION.',
-                style: TextStyle(color: AppColors.muted)),
             const SizedBox(height: 24),
-            const SectionHeader(title: 'Business overview'),
+            SectionHeader(title: l10n.businessOverview),
             const SizedBox(height: 8),
-            const MetricGrid(
+            MetricGrid(
               children: [
                 MetricCard(
                     value: '24',
-                    label: 'Active vehicles',
+                    label: l10n.activeVehicles,
                     icon: Icons.local_shipping_outlined,
                     color: AppColors.blue),
                 MetricCard(
                     value: '142',
-                    label: 'Trips this month',
+                    label: l10n.tripsThisMonth,
                     icon: Icons.route_outlined,
                     color: AppColors.success),
                 MetricCard(
                     value: '96%',
-                    label: 'On-time rate',
+                    label: l10n.onTimeRate,
                     icon: Icons.verified_outlined,
-                    color: Color(0xFF7557D9)),
+                    color: const Color(0xFF7557D9)),
               ],
             ),
             const SizedBox(height: 26),
-            const SectionHeader(title: 'Delivery performance'),
-            const SizedBox(height: 8),
-            const _PerformanceCard(),
-            const SizedBox(height: 26),
-            const SectionHeader(title: 'Management dashboard'),
+            SectionHeader(title: l10n.managementDashboard),
             const SizedBox(height: 8),
             GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: MediaQuery.sizeOf(context).width >= 700 ? 3 : 2,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 1.3,
-              children: const [
+              crossAxisCount: 3,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              childAspectRatio: 0.85,
+              children: [
                 _ManagementTile(
-                    icon: Icons.local_shipping_outlined,
-                    label: 'Active vehicles',
-                    color: AppColors.blue),
+                    icon: Icons.local_shipping_rounded,
+                    label: l10n.activeVehicles,
+                    color: AppColors.blue,
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const TrackFleetScreen()))),
                 _ManagementTile(
-                    icon: Icons.water_drop_outlined,
-                    label: 'Fuel usage',
-                    color: AppColors.warning),
+                    icon: Icons.local_gas_station_rounded,
+                    label: l10n.fuelReports,
+                    color: AppColors.warning,
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const FuelReportsScreen()))),
                 _ManagementTile(
-                    icon: Icons.inventory_2_outlined,
-                    label: 'Material delivery',
-                    color: AppColors.success),
-                _ManagementTile(
-                    icon: Icons.person_outline,
-                    label: 'Driver performance',
-                    color: Color(0xFF7557D9)),
-                _ManagementTile(
-                    icon: Icons.account_balance_wallet_outlined,
-                    label: 'Expenses & cost',
-                    color: AppColors.warning),
-                _ManagementTile(
-                    icon: Icons.manage_accounts_outlined,
-                    label: 'Users & permissions',
-                    color: AppColors.navy),
+                    icon: Icons.summarize_rounded,
+                    label: l10n.tripReports,
+                    color: const Color(0xFF7557D9),
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const TripReportsScreen()))),
               ],
             ),
-            const SizedBox(height: 30),
-            PrimaryButton(
-                label: 'View reports',
-                icon: Icons.assessment_outlined,
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text(
-                              'Reports workspace is ready for live operational data.')),
-                    )),
+            const SizedBox(height: 26),
+            SectionHeader(title: l10n.deliveryPerformance),
+            const SizedBox(height: 8),
+            const _PerformanceCard(),
           ],
         ),
       );
+  }
 }
 
 class _RoleContent extends StatelessWidget {
@@ -519,9 +539,9 @@ class _RoleHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) => WorkspaceHeader(
         name: name,
-        workspace: role.shortLabel,
+        workspace: role.shortLabel(context),
         icon: role.icon,
-        detail: role.label,
+        detail: role.label(context),
         onNotifications: () {
           final shell = context.findAncestorStateOfType<_RoleShellState>();
           shell?.selectTab(1);
@@ -624,12 +644,18 @@ class _FuelRequestCard extends StatelessWidget {
   final VoidCallback onApprove, onReject;
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final pending = status == 'Pending';
     final color = status == 'Approved'
         ? AppColors.success
         : status == 'Rejected'
             ? AppColors.error
             : AppColors.warning;
+    final statusLabel = switch (status) {
+      'Approved' => l10n.statusApproved,
+      'Rejected' => l10n.statusRejected,
+      _ => l10n.statusPending,
+    };
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -655,7 +681,7 @@ class _FuelRequestCard extends StatelessWidget {
                         style: const TextStyle(
                             color: AppColors.muted, fontSize: 12))
                   ])),
-              StatusBadge(label: status, color: color)
+              StatusBadge(label: statusLabel, color: color)
             ]),
             if (pending) ...[
               const SizedBox(height: 14),
@@ -666,24 +692,22 @@ class _FuelRequestCard extends StatelessWidget {
                         style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.error,
                             side: const BorderSide(color: AppColors.error)),
-                        child: const Text('Reject'))),
+                        child: Text(l10n.reject))),
                 const SizedBox(width: 10),
                 Expanded(
                     child: FilledButton(
                         onPressed: onApprove,
                         style: FilledButton.styleFrom(
                             backgroundColor: AppColors.success),
-                        child: const Text('Approve')))
+                        child: Text(l10n.approve)))
               ]),
             ] else if (status == 'Approved') ...[
               const SizedBox(height: 10),
               TextButton.icon(
                   onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content:
-                              Text('Fuel issue recorded and stock updated.'))),
+                      SnackBar(content: Text(l10n.fuelIssueRecordedMsg))),
                   icon: const Icon(Icons.inventory_outlined),
-                  label: const Text('Record fuel out')),
+                  label: Text(l10n.recordFuelOut)),
             ],
           ],
         ),
@@ -695,23 +719,26 @@ class _FuelRequestCard extends StatelessWidget {
 class _PerformanceCard extends StatelessWidget {
   const _PerformanceCard();
   @override
-  Widget build(BuildContext context) => Card(
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Card(
         child: Padding(
           padding: const EdgeInsets.all(18),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Row(children: [
+            Row(children: [
               Expanded(
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                    Text('On-time completion',
-                        style: TextStyle(fontWeight: FontWeight.w900)),
-                    SizedBox(height: 3),
-                    Text('This week · Target 94%',
-                        style: TextStyle(color: AppColors.muted, fontSize: 12))
+                    Text(l10n.onTimeCompletion,
+                        style: const TextStyle(fontWeight: FontWeight.w900)),
+                    const SizedBox(height: 3),
+                    Text(l10n.thisWeekTarget('94'),
+                        style: const TextStyle(
+                            color: AppColors.muted, fontSize: 12))
                   ])),
-              Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+              const Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
                 Text('96%',
                     style:
                         TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
@@ -726,18 +753,20 @@ class _PerformanceCard extends StatelessWidget {
                 height: 122,
                 child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
-                    children: const [
-                      _ChartBar(height: 46, label: 'Mon'),
-                      _ChartBar(height: 68, label: 'Tue'),
-                      _ChartBar(height: 59, label: 'Wed'),
-                      _ChartBar(height: 90, label: 'Thu'),
-                      _ChartBar(height: 80, label: 'Fri'),
-                      _ChartBar(height: 98, label: 'Sat', highlighted: true),
-                      _ChartBar(height: 67, label: 'Sun')
+                    children: [
+                      _ChartBar(height: 46, label: l10n.dayMon),
+                      _ChartBar(height: 68, label: l10n.dayTue),
+                      _ChartBar(height: 59, label: l10n.dayWed),
+                      _ChartBar(height: 90, label: l10n.dayThu),
+                      _ChartBar(height: 80, label: l10n.dayFri),
+                      _ChartBar(
+                          height: 98, label: l10n.daySat, highlighted: true),
+                      _ChartBar(height: 67, label: l10n.daySun)
                     ]))
           ]),
         ),
       );
+  }
 }
 
 class _ChartBar extends StatelessWidget {
@@ -769,45 +798,56 @@ class _ChartBar extends StatelessWidget {
 
 class _ManagementTile extends StatelessWidget {
   const _ManagementTile(
-      {required this.icon, required this.label, required this.color});
+      {required this.icon,
+      required this.label,
+      required this.color,
+      required this.onTap});
   final IconData icon;
   final String label;
   final Color color;
+  final VoidCallback onTap;
   @override
   Widget build(BuildContext context) => Card(
       child: InkWell(
-          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content: Text(
-                        '$label insights will appear here as live data connects.')),
-              ),
+          onTap: onTap,
           borderRadius: BorderRadius.circular(18),
           child: Padding(
-              padding: const EdgeInsets.all(13),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
               child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(icon, color: color),
-                    const Spacer(),
+                    Container(
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                            color: color.withValues(alpha: .12),
+                            shape: BoxShape.circle),
+                        child: Icon(icon, color: color, size: 26)),
+                    const SizedBox(height: 10),
                     Text(label,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                             fontWeight: FontWeight.w800, fontSize: 12))
                   ]))));
 }
 
-void _showTripSent(BuildContext context) => showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        icon:
-            const Icon(Icons.check_circle, color: AppColors.success, size: 38),
-        title: const Text('Trip sent to driver'),
-        content: const Text(
-            'The driver can now see the assigned vehicle, route, material, and delivery instructions.'),
-        actions: [
-          FilledButton(
-              onPressed: () => Navigator.of(dialogContext)
-                  .popUntil((route) => route.isFirst),
-              child: const Text('Done'))
-        ],
-      ),
-    );
+void _showTripSent(BuildContext context) {
+  final l10n = AppLocalizations.of(context)!;
+  showDialog(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      icon:
+          const Icon(Icons.check_circle, color: AppColors.success, size: 38),
+      title: Text(l10n.tripSentTitle),
+      content: Text(l10n.tripSentBody),
+      actions: [
+        FilledButton(
+            onPressed: () => Navigator.of(dialogContext)
+                .popUntil((route) => route.isFirst),
+            child: Text(l10n.done))
+      ],
+    ),
+  );
+}

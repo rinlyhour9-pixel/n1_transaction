@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 const tripAccent = Color(0xFFFF875F);
 
@@ -20,6 +21,7 @@ class TripSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final dark = Theme.of(context).brightness == Brightness.dark;
     return Material(
       color: dark ? const Color(0xFF242424) : Colors.white,
@@ -59,7 +61,8 @@ class TripSummaryCard extends StatelessWidget {
                     ],
                   ])),
               const SizedBox(width: 8),
-              TripStatusPill(label: completed ? 'Completed' : 'Assigned'),
+              TripStatusPill(
+                  label: completed ? l10n.completed : l10n.assignedStatus),
             ]),
             const SizedBox(height: 22),
             Row(children: [
@@ -71,7 +74,9 @@ class TripSummaryCard extends StatelessWidget {
                     const SizedBox(height: 16),
                     Text(
                         schedule ??
-                            (completed ? 'Trip completed' : 'Ready to depart'),
+                            (completed
+                                ? l10n.tripCompletedNote
+                                : l10n.readyToDepart),
                         style: TextStyle(
                             fontSize: 11,
                             color: Theme.of(context)
@@ -79,7 +84,7 @@ class TripSummaryCard extends StatelessWidget {
                                 .onSurfaceVariant)),
                     if (distance != null) ...[
                       const SizedBox(height: 4),
-                      Text('$distance route',
+                      Text(l10n.routeDistance(distance!),
                           style: const TextStyle(
                               fontSize: 12, fontWeight: FontWeight.w600)),
                     ],
@@ -89,11 +94,12 @@ class TripSummaryCard extends StatelessWidget {
             ]),
             const SizedBox(height: 14),
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Expanded(child: TripFact(label: 'Pickup', value: pickup)),
+              Expanded(child: TripFact(label: l10n.pickup, value: pickup)),
               const Padding(
                   padding: EdgeInsets.fromLTRB(8, 18, 12, 0),
                   child: Icon(Icons.east, size: 17, color: tripAccent)),
-              Expanded(child: TripFact(label: 'Delivery', value: destination)),
+              Expanded(
+                  child: TripFact(label: l10n.delivery, value: destination)),
             ]),
           ]),
         ),
@@ -127,10 +133,12 @@ class TripProgressLine extends StatelessWidget {
       {super.key, this.completed = false, this.dark = false});
   final bool completed, dark;
   @override
-  Widget build(BuildContext context) => Semantics(
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Semantics(
         label: completed
-            ? 'Trip completed'
-            : 'Trip assigned, pickup and delivery pending',
+            ? l10n.tripCompletedNote
+            : l10n.tripAssignedSemantics,
         child: ExcludeSemantics(
             child: Row(children: [
           for (var i = 0; i < 4; i++) ...[
@@ -177,6 +185,7 @@ class TripProgressLine extends StatelessWidget {
           ],
         ])),
       );
+  }
 }
 
 class TripFact extends StatelessWidget {
