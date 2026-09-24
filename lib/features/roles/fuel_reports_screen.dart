@@ -84,7 +84,7 @@ class _FuelReportsScreenState extends State<FuelReportsScreen> {
         .toList();
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.fuelReports)),
+      appBar: curvedAppBar(l10n.fuelReports),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [

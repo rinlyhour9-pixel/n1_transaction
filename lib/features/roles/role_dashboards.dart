@@ -51,7 +51,7 @@ class _RoleShellState extends State<RoleShell> {
       body: IndexedStack(index: index, children: [
         dashboard,
         Scaffold(
-          appBar: AppBar(title: Text(l10n.notifications)),
+          appBar: curvedAppBar(l10n.notifications),
           body: Center(child: Text(l10n.notifNoneTitle)),
         ),
         ProfileScreen(
@@ -95,13 +95,13 @@ class TripAdviserDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton.small(
+        tooltip: l10n.createTrip,
         onPressed: () => Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const CreateTripScreen()),
         ),
-        icon: const Icon(Icons.add),
-        label: Text(l10n.createTrip),
+        child: const Icon(Icons.add),
       ),
       body: RefreshIndicator(
         onRefresh: () async => await Future<void>.delayed(
@@ -215,10 +215,8 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-        appBar: AppBar(
-            title: Text(widget.editing
-                ? l10n.tripLabel('N1-2034')
-                : l10n.createATrip)),
+        appBar: curvedAppBar(
+            widget.editing ? l10n.tripLabel('N1-2034') : l10n.createATrip),
         body: _RoleContent(
           maxWidth: 680,
           padding: const EdgeInsets.all(AppSpacing.lg),

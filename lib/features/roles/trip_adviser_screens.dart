@@ -12,7 +12,7 @@ class TrackFleetScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.trackFleet)),
+      appBar: curvedAppBar(l10n.trackFleet),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [
@@ -208,7 +208,7 @@ class _TripReportsScreenState extends State<TripReportsScreen> {
         .toList();
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.tripReports)),
+      appBar: curvedAppBar(l10n.tripReports),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [

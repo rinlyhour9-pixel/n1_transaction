@@ -12,37 +12,40 @@ class VehicleScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-        appBar: AppBar(title: Text(l10n.myVehicle)),
+        appBar: curvedAppBar(l10n.myVehicle),
         body: Center(
             child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 680),
           child: ListView(padding: const EdgeInsets.all(20), children: [
-            Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                    color: AppColors.navy,
-                    borderRadius: BorderRadius.circular(26)),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.local_shipping_outlined,
-                          color: Colors.white, size: 64),
-                      const SizedBox(height: 24),
-                      Text(l10n.assignedVehicle,
-                          style: const TextStyle(
-                              color: Colors.white60,
-                              fontSize: 11,
-                              letterSpacing: 1.4)),
-                      const SizedBox(height: 8),
-                      Text(demoTrip.vehicle,
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 4),
-                      Text(l10n.cementTruck,
-                          style: const TextStyle(color: Colors.white70)),
-                    ])),
+            Card(
+                child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                              width: 64,
+                              height: 64,
+                              decoration: BoxDecoration(
+                                  color: AppColors.navy.withValues(alpha: .1),
+                                  borderRadius: BorderRadius.circular(16)),
+                              child: const Icon(Icons.local_shipping_outlined,
+                                  color: AppColors.navy, size: 32)),
+                          const SizedBox(height: 20),
+                          Text(l10n.assignedVehicle,
+                              style: const TextStyle(
+                                  color: AppColors.muted,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1.4)),
+                          const SizedBox(height: 8),
+                          Text(demoTrip.vehicle,
+                              style: const TextStyle(
+                                  fontSize: 28, fontWeight: FontWeight.w800)),
+                          const SizedBox(height: 4),
+                          Text(l10n.cementTruck,
+                              style: const TextStyle(color: AppColors.muted)),
+                        ]))),
             const SizedBox(height: 24),
             SectionHeader(title: l10n.vehicleAssignment),
             const SizedBox(height: 12),

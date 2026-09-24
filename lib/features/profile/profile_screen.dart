@@ -67,8 +67,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (mounted && updated != null) setState(() => name = updated);
   }
 
-  Future<void> _selectLanguage() =>
-      showLanguagePicker(context, widget.locale, widget.onLocaleChanged);
+  Future<void> _selectLanguage(BuildContext anchorContext) =>
+      showLanguagePicker(anchorContext, widget.locale, widget.onLocaleChanged);
 
   @override
   Widget build(BuildContext context) {
@@ -277,15 +277,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               label: l10n.changePassword,
                               subtitle: l10n.changePasswordSubtitle,
                               color: const Color(0xFF009568)),
-                          _Menu(
-                              icon: Icons.language,
-                              label: l10n.language,
-                              subtitle: l10n.languageSubtitle,
-                              color: const Color(0xFF7131D5),
-                              detail: widget.locale.languageCode == 'km'
-                                  ? l10n.languageKhmer
-                                  : l10n.languageEnglish,
-                              onTap: _selectLanguage),
+                          Builder(
+                              builder: (menuContext) => _Menu(
+                                  icon: Icons.language,
+                                  label: l10n.language,
+                                  subtitle: l10n.languageSubtitle,
+                                  color: const Color(0xFF7131D5),
+                                  detail: widget.locale.languageCode == 'km'
+                                      ? l10n.languageKhmer
+                                      : l10n.languageEnglish,
+                                  onTap: () => _selectLanguage(menuContext))),
                           _Menu(
                               icon: Icons.dark_mode_outlined,
                               label: l10n.toggleTheme,

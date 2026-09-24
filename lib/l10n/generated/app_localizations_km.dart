@@ -442,9 +442,6 @@ class AppLocalizationsKm extends AppLocalizations {
       'អ្នកនឹងត្រូវចូលម្តងទៀត ដើម្បីចូលប្រើកន្លែងធ្វើការរបស់អ្នក។';
 
   @override
-  String get selectLanguage => 'ជ្រើសរើសភាសា';
-
-  @override
   String get languageEnglish => 'English';
 
   @override
@@ -768,16 +765,6 @@ class AppLocalizationsKm extends AppLocalizations {
   String get inProgressStatus => 'កំពុងដំណើរការ';
 
   @override
-  String get startTripConfirmTitle => 'ចាប់ផ្តើមដំណើរនេះ?';
-
-  @override
-  String get startTripConfirmBody =>
-      'សូមបញ្ជាក់នៅពេលអ្នករួចរាល់ធ្វើដំណើរទៅកាន់ទីតាំងទទួល។';
-
-  @override
-  String get yesStartTrip => 'បាទ/ចាស ចាប់ផ្តើមដំណើរ';
-
-  @override
   String get activeTripTitle => 'ដំណើរសកម្ម';
 
   @override
@@ -831,6 +818,14 @@ class AppLocalizationsKm extends AppLocalizations {
   String get tripCompletedTitle => 'ដំណើរបានបញ្ចប់!';
 
   @override
+  String completedAtTime(Object time) {
+    return 'បានបញ្ចប់នៅ $time';
+  }
+
+  @override
+  String get completedAtLabel => 'បានបញ្ចប់នៅ';
+
+  @override
   String get backToHome => 'ត្រឡប់ទៅទំព័រដើម';
 
   @override
@@ -850,9 +845,6 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get stageArrivedAtDestination => 'បានមកដល់ទីតាំងដឹកជញ្ជូន';
-
-  @override
-  String get stageUnloading => 'កំពុងបន្ថយទំនិញ';
 
   @override
   String get stageCompleted => 'បានបញ្ចប់';

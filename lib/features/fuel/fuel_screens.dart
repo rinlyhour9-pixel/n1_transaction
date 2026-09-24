@@ -10,20 +10,19 @@ class FuelScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-        appBar: AppBar(title: Text(l10n.navFuel)),
-        floatingActionButton: FloatingActionButton.extended(
+        appBar: curvedAppBar(l10n.navFuel),
+        floatingActionButton: FloatingActionButton.small(
+          tooltip: l10n.requestFuel,
           onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const FuelRequestScreen()),
           ),
-          icon: const Icon(Icons.add),
-          label: Text(l10n.requestFuel),
+          child: const Icon(Icons.add),
         ),
         body: ListView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
             Card(
-              color: AppColors.navy,
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -31,28 +30,28 @@ class FuelScreen extends StatelessWidget {
                   children: [
                     const Text(
                       'PP 3A-1234  •  Cement Truck',
-                      style: TextStyle(color: Colors.white70),
+                      style: TextStyle(color: AppColors.muted),
                     ),
                     const SizedBox(height: 20),
                     const Text(
                       '35%',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: AppColors.navy,
                         fontWeight: FontWeight.w900,
                         fontSize: 42,
                       ),
                     ),
                     Text(
                       l10n.currentFuelLevel,
-                      style: const TextStyle(color: Colors.white70),
+                      style: const TextStyle(color: AppColors.muted),
                     ),
                     const SizedBox(height: 14),
                     LinearProgressIndicator(
                       value: .35,
                       minHeight: 8,
                       borderRadius: BorderRadius.circular(8),
-                      color: AppColors.accent,
-                      backgroundColor: Colors.white24,
+                      color: AppColors.warning,
+                      backgroundColor: AppColors.warning.withValues(alpha: .15),
                     ),
                   ],
                 ),
@@ -143,7 +142,7 @@ class _FuelRequestScreenState extends State<FuelRequestScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-        appBar: AppBar(title: Text(l10n.requestFuel)),
+        appBar: curvedAppBar(l10n.requestFuel),
         body: ListView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [

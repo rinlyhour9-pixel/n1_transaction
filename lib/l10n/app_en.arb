@@ -156,7 +156,6 @@
   "logOut": "Log out",
   "logOutTitle": "Log out?",
   "logOutBody": "You will need to sign in again to access your workspace.",
-  "selectLanguage": "Select language",
   "languageEnglish": "English",
   "languageKhmer": "Khmer",
 
@@ -270,9 +269,6 @@
   "@estimatedTime": { "placeholders": { "time": {} } },
   "assignedStatus": "Assigned",
   "inProgressStatus": "In progress",
-  "startTripConfirmTitle": "Start this trip?",
-  "startTripConfirmBody": "Confirm when you are ready to head to the pickup location.",
-  "yesStartTrip": "Yes, start trip",
   "activeTripTitle": "Active trip",
   "arrivedAtPickup": "Arrived at pickup",
   "startLoading": "Start loading",
@@ -291,6 +287,9 @@
   "deliveryNote": "Delivery note",
   "completeDelivery": "Complete delivery",
   "tripCompletedTitle": "Trip completed!",
+  "completedAtTime": "Completed at {time}",
+  "@completedAtTime": { "placeholders": { "time": {} } },
+  "completedAtLabel": "Completed at",
   "backToHome": "Back to home",
 
   "stageStarted": "Started",
@@ -299,7 +298,6 @@
   "stageLoadingMaterial": "Loading material",
   "stageDelivering": "Delivering",
   "stageArrivedAtDestination": "Arrived at destination",
-  "stageUnloading": "Unloading",
   "stageCompleted": "Completed",
 
   "semStateComplete": "complete",

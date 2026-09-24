@@ -148,7 +148,6 @@
   "logOut": "ចាកចេញ",
   "logOutTitle": "ចាកចេញ?",
   "logOutBody": "អ្នកនឹងត្រូវចូលម្តងទៀត ដើម្បីចូលប្រើកន្លែងធ្វើការរបស់អ្នក។",
-  "selectLanguage": "ជ្រើសរើសភាសា",
   "languageEnglish": "English",
   "languageKhmer": "ខ្មែរ",
 
@@ -257,9 +256,6 @@
   "estimatedTime": "ប៉ាន់ស្មាន {time}",
   "assignedStatus": "បានចាត់តាំង",
   "inProgressStatus": "កំពុងដំណើរការ",
-  "startTripConfirmTitle": "ចាប់ផ្តើមដំណើរនេះ?",
-  "startTripConfirmBody": "សូមបញ្ជាក់នៅពេលអ្នករួចរាល់ធ្វើដំណើរទៅកាន់ទីតាំងទទួល។",
-  "yesStartTrip": "បាទ/ចាស ចាប់ផ្តើមដំណើរ",
   "activeTripTitle": "ដំណើរសកម្ម",
   "arrivedAtPickup": "បានមកដល់ទីតាំងទទួល",
   "startLoading": "ចាប់ផ្តើមផ្ទុកទំនិញ",
@@ -277,6 +273,8 @@
   "deliveryNote": "កំណត់ចំណាំដឹកជញ្ជូន",
   "completeDelivery": "បញ្ចប់ការដឹកជញ្ជូន",
   "tripCompletedTitle": "ដំណើរបានបញ្ចប់!",
+  "completedAtTime": "បានបញ្ចប់នៅ {time}",
+  "completedAtLabel": "បានបញ្ចប់នៅ",
   "backToHome": "ត្រឡប់ទៅទំព័រដើម",
 
   "stageStarted": "បានចាប់ផ្តើម",
@@ -285,7 +283,6 @@
   "stageLoadingMaterial": "កំពុងផ្ទុកសម្ភារៈ",
   "stageDelivering": "កំពុងដឹកជញ្ជូន",
   "stageArrivedAtDestination": "បានមកដល់ទីតាំងដឹកជញ្ជូន",
-  "stageUnloading": "កំពុងបន្ថយទំនិញ",
   "stageCompleted": "បានបញ្ចប់",
 
   "semStateComplete": "បានបញ្ចប់",

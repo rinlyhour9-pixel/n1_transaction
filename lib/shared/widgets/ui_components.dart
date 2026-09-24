@@ -5,6 +5,30 @@ import '../../core/constants/app_spacing.dart';
 import '../../core/theme/app_colors.dart';
 import '../../l10n/generated/app_localizations.dart';
 
+/// A branded navy AppBar with a curved bottom edge, used on secondary
+/// pages in place of a flat default AppBar so their top chrome matches
+/// the app's other branded headers.
+PreferredSizeWidget curvedAppBar(String title, {List<Widget>? actions}) =>
+    AppBar(
+      title: Text(title),
+      // The theme's AppBarTheme.titleTextStyle hardcodes a dark color for
+      // the app's other (light) app bars, which would silently override
+      // foregroundColor here — so the title style must be set explicitly.
+      titleTextStyle: const TextStyle(
+        color: Colors.white,
+        fontSize: 22,
+        fontWeight: FontWeight.w800,
+      ),
+      backgroundColor: AppColors.navy,
+      foregroundColor: Colors.white,
+      elevation: 0,
+      toolbarHeight: 64,
+      systemOverlayStyle: SystemUiOverlayStyle.light,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(26))),
+      actions: actions,
+    );
+
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
     super.key,

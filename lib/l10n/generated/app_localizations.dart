@@ -896,12 +896,6 @@ abstract class AppLocalizations {
   /// **'You will need to sign in again to access your workspace.'**
   String get logOutBody;
 
-  /// No description provided for @selectLanguage.
-  ///
-  /// In en, this message translates to:
-  /// **'Select language'**
-  String get selectLanguage;
-
   /// No description provided for @languageEnglish.
   ///
   /// In en, this message translates to:
@@ -1520,24 +1514,6 @@ abstract class AppLocalizations {
   /// **'In progress'**
   String get inProgressStatus;
 
-  /// No description provided for @startTripConfirmTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Start this trip?'**
-  String get startTripConfirmTitle;
-
-  /// No description provided for @startTripConfirmBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Confirm when you are ready to head to the pickup location.'**
-  String get startTripConfirmBody;
-
-  /// No description provided for @yesStartTrip.
-  ///
-  /// In en, this message translates to:
-  /// **'Yes, start trip'**
-  String get yesStartTrip;
-
   /// No description provided for @activeTripTitle.
   ///
   /// In en, this message translates to:
@@ -1640,6 +1616,18 @@ abstract class AppLocalizations {
   /// **'Trip completed!'**
   String get tripCompletedTitle;
 
+  /// No description provided for @completedAtTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed at {time}'**
+  String completedAtTime(Object time);
+
+  /// No description provided for @completedAtLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed at'**
+  String get completedAtLabel;
+
   /// No description provided for @backToHome.
   ///
   /// In en, this message translates to:
@@ -1681,12 +1669,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Arrived at destination'**
   String get stageArrivedAtDestination;
-
-  /// No description provided for @stageUnloading.
-  ///
-  /// In en, this message translates to:
-  /// **'Unloading'**
-  String get stageUnloading;
 
   /// No description provided for @stageCompleted.
   ///

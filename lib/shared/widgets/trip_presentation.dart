@@ -13,10 +13,15 @@ class TripSummaryCard extends StatelessWidget {
       this.schedule,
       this.distance,
       this.completed = false,
+      this.progress,
       this.onTap});
   final String id, pickup, destination;
   final String? material, schedule, distance;
   final bool completed;
+
+  /// How far through the journey the trip is (0.0-1.0). Passed straight
+  /// through to [TripProgressLine]; see there for details.
+  final double? progress;
   final VoidCallback? onTap;
 
   @override
@@ -70,7 +75,7 @@ class TripSummaryCard extends StatelessWidget {
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                    TripProgressLine(completed: completed),
+                    TripProgressLine(completed: completed, progress: progress),
                     const SizedBox(height: 16),
                     Text(
                         schedule ??
@@ -130,11 +135,23 @@ class TripStatusPill extends StatelessWidget {
 
 class TripProgressLine extends StatelessWidget {
   const TripProgressLine(
-      {super.key, this.completed = false, this.dark = false});
+      {super.key, this.completed = false, this.dark = false, this.progress});
   final bool completed, dark;
+
+  /// How far through the journey the trip is, from 0.0 to 1.0. When null,
+  /// falls back to the simple started/completed look. When set, the number
+  /// of the 4 segments lit up scales with progress, so this compact bar
+  /// stays in sync with the detailed stage list on the active-trip screen.
+  final double? progress;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final filledCount = completed
+        ? 4
+        : progress == null
+            ? 1
+            : (progress! * 4).ceil().clamp(1, 4);
     return Semantics(
         label: completed
             ? l10n.tripCompletedNote
@@ -154,7 +171,7 @@ class TripProgressLine extends StatelessWidget {
                                       height: 3,
                                       decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: completed
+                                          color: i < filledCount
                                               ? tripAccent
                                               : dark
                                                   ? Colors.white24
@@ -167,17 +184,17 @@ class TripProgressLine extends StatelessWidget {
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                        color: completed || i == 0
+                        color: i < filledCount
                             ? tripAccent
                             : dark
                                 ? Colors.white24
                                 : const Color(0xFFDDDDDD))),
                 child: Icon(
-                    completed || i == 0
+                    i < filledCount
                         ? Icons.check_circle
                         : Icons.circle_outlined,
                     size: 17,
-                    color: completed || i == 0
+                    color: i < filledCount
                         ? tripAccent
                         : dark
                             ? Colors.white30

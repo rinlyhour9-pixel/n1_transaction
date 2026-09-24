@@ -440,9 +440,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'You will need to sign in again to access your workspace.';
 
   @override
-  String get selectLanguage => 'Select language';
-
-  @override
   String get languageEnglish => 'English';
 
   @override
@@ -765,16 +762,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get inProgressStatus => 'In progress';
 
   @override
-  String get startTripConfirmTitle => 'Start this trip?';
-
-  @override
-  String get startTripConfirmBody =>
-      'Confirm when you are ready to head to the pickup location.';
-
-  @override
-  String get yesStartTrip => 'Yes, start trip';
-
-  @override
   String get activeTripTitle => 'Active trip';
 
   @override
@@ -828,6 +815,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripCompletedTitle => 'Trip completed!';
 
   @override
+  String completedAtTime(Object time) {
+    return 'Completed at $time';
+  }
+
+  @override
+  String get completedAtLabel => 'Completed at';
+
+  @override
   String get backToHome => 'Back to home';
 
   @override
@@ -847,9 +842,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stageArrivedAtDestination => 'Arrived at destination';
-
-  @override
-  String get stageUnloading => 'Unloading';
 
   @override
   String get stageCompleted => 'Completed';

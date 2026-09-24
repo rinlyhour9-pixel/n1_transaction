@@ -738,7 +738,7 @@ class _BrandMark extends StatelessWidget {
   Widget build(BuildContext context) => Row(
         children: [
           Image.asset(
-            'assets/images_Logo/N1 logo.png',
+            'assets/images_Logo/N1_Circle.png',
             width: 44,
             height: 44,
             fit: BoxFit.contain,

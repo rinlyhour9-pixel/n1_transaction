@@ -217,21 +217,24 @@ class _TripCard extends StatelessWidget {
   const _TripCard({required this.onTap});
   final VoidCallback onTap;
   @override
-  Widget build(BuildContext context) => Column(children: [
-        TripSummaryCard(
-            id: demoTrip.id,
-            pickup: demoTrip.pickup,
-            destination: demoTrip.destination,
-            material: '${demoTrip.material} · ${demoTrip.quantity}',
-            schedule: demoTrip.time,
-            distance: demoTrip.distance,
-            onTap: onTap),
-        const SizedBox(height: 12),
-        PrimaryButton(
-            label: AppLocalizations.of(context)!.startTrip,
-            onPressed: onTap,
-            icon: Icons.play_arrow_rounded),
-      ]);
+  Widget build(BuildContext context) => ValueListenableBuilder<int>(
+      valueListenable: currentTripStage,
+      builder: (context, stage, _) => Column(children: [
+            TripSummaryCard(
+                id: demoTrip.id,
+                pickup: demoTrip.pickup,
+                destination: demoTrip.destination,
+                material: '${demoTrip.material} · ${demoTrip.quantity}',
+                schedule: demoTrip.time,
+                distance: demoTrip.distance,
+                progress: stage / (totalTripStages - 1),
+                onTap: onTap),
+            const SizedBox(height: 12),
+            PrimaryButton(
+                label: AppLocalizations.of(context)!.startTrip,
+                onPressed: onTap,
+                icon: Icons.play_arrow_rounded),
+          ]));
 }
 
 class _QuickAction extends StatelessWidget {
@@ -282,7 +285,7 @@ class NotificationsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.notifications)),
+      appBar: curvedAppBar(l10n.notifications),
       body: ListView(
         children: [
           ListTile(

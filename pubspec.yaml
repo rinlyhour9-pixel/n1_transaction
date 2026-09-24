@@ -27,15 +27,23 @@ flutter:
     - assets/images_Logo/
   uses-material-design: true
   fonts:
-    - family: KantumruyPro
+    - family: NotoSansKhmer
       fonts:
-        - asset: assets/font_khmer/KantumruyPro-Light.ttf
+        - asset: assets/font_khmer/NotoSansKhmer-Thin.ttf
+          weight: 100
+        - asset: assets/font_khmer/NotoSansKhmer-ExtraLight.ttf
+          weight: 200
+        - asset: assets/font_khmer/NotoSansKhmer-Light.ttf
           weight: 300
-        - asset: assets/font_khmer/KantumruyPro-Regular.ttf
+        - asset: assets/font_khmer/NotoSansKhmer-Regular.ttf
           weight: 400
-        - asset: assets/font_khmer/KantumruyPro-Medium.ttf
+        - asset: assets/font_khmer/NotoSansKhmer-Medium.ttf
           weight: 500
-        - asset: assets/font_khmer/KantumruyPro-SemiBold.ttf
+        - asset: assets/font_khmer/NotoSansKhmer-SemiBold.ttf
           weight: 600
-        - asset: assets/font_khmer/KantumruyPro-Bold.ttf
+        - asset: assets/font_khmer/NotoSansKhmer-Bold.ttf
           weight: 700
+        - asset: assets/font_khmer/NotoSansKhmer-ExtraBold.ttf
+          weight: 800
+        - asset: assets/font_khmer/NotoSansKhmer-Black.ttf
+          weight: 900
