@@ -209,7 +209,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get navNotifications => 'ការជូនដំណឹង';
 
   @override
-  String get goodMorning => 'អរុណសួស្តី,';
+  String get goodMorning => 'សូមស្វាគមន៍,';
 
   @override
   String get onDuty => 'កំពុងបំពេញការងារ';
@@ -357,9 +357,6 @@ class AppLocalizationsKm extends AppLocalizations {
   String get done => 'រួចរាល់';
 
   @override
-  String get requestFor => 'ស្នើសុំសម្រាប់';
-
-  @override
   String get currentFuel => 'ប្រេងបច្ចុប្បន្ន';
 
   @override
@@ -426,10 +423,45 @@ class AppLocalizationsKm extends AppLocalizations {
   String get toggleThemeSubtitle => 'ប្តូររវាងរបៀបភ្លឺ និងងងឹត';
 
   @override
-  String get helpSupport => 'ជំនួយ និងគាំទ្រ';
+  String get emailLabel => 'អ៊ីមែល';
 
   @override
-  String get helpSupportSubtitle => 'ទទួលបានជំនួយ ឬទាក់ទងក្រុមការងាររបស់យើង';
+  String get enterPhoneNumber => 'សូមបញ្ចូលលេខទូរស័ព្ទ';
+
+  @override
+  String get enterValidEmail => 'សូមបញ្ចូលអ៊ីមែលត្រឹមត្រូវ';
+
+  @override
+  String get personalInfoSavedMsg =>
+      'ព័ត៌មានផ្ទាល់ខ្លួនត្រូវបានធ្វើបច្ចុប្បន្នភាព។';
+
+  @override
+  String get currentPasswordLabel => 'ពាក្យសម្ងាត់បច្ចុប្បន្ន';
+
+  @override
+  String get enterCurrentPassword => 'សូមបញ្ចូលពាក្យសម្ងាត់បច្ចុប្បន្នរបស់អ្នក';
+
+  @override
+  String get newPasswordLabel => 'ពាក្យសម្ងាត់ថ្មី';
+
+  @override
+  String get confirmPasswordLabel => 'បញ្ជាក់ពាក្យសម្ងាត់ថ្មី';
+
+  @override
+  String get passwordMismatch => 'ពាក្យសម្ងាត់មិនត្រូវគ្នា';
+
+  @override
+  String get passwordTooShort => 'ពាក្យសម្ងាត់ត្រូវមានយ៉ាងតិច៦តួអក្សរ';
+
+  @override
+  String get updatePasswordButton => 'ផ្លាស់ប្តូរពាក្យសម្ងាត់';
+
+  @override
+  String get passwordUpdatedTitle => 'ពាក្យសម្ងាត់ត្រូវបានផ្លាស់ប្តូរ';
+
+  @override
+  String get passwordUpdatedBody =>
+      'ពាក្យសម្ងាត់របស់អ្នកត្រូវបានផ្លាស់ប្តូរដោយជោគជ័យ។';
 
   @override
   String get logOut => 'ចាកចេញ';
@@ -656,6 +688,42 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get recentFuelActivity => 'សកម្មភាពប្រេងឥន្ធនៈថ្មីៗ';
+
+  @override
+  String get helloGreeting => 'សួស្តី,';
+
+  @override
+  String get fuelTagline => 'បំពេញប្រេងឲ្យគ្រប់ ដំណើរការឥតឈប់ឈរ';
+
+  @override
+  String get onTripStatus => 'កំពុងធ្វើដំណើរ';
+
+  @override
+  String get fuelCapacity => 'សមត្ថភាពប្រេងឥន្ធនៈ';
+
+  @override
+  String get remainingFuel => 'នៅសល់';
+
+  @override
+  String get lowFuelWarning => 'កម្រិតប្រេងទាប។ សូមស្នើសុំបំពេញប្រេងឆាប់ៗនេះ។';
+
+  @override
+  String get createNewRequest => 'បង្កើតសំណើថ្មី';
+
+  @override
+  String get locationLabel => 'ទីតាំង';
+
+  @override
+  String get vehicleLabel => 'យានយន្ត';
+
+  @override
+  String get enterFuelAmountHint => 'បញ្ចូលបរិមាណប្រេង (ឧ. 50 លីត្រ)';
+
+  @override
+  String get selectLocationHint => 'ជ្រើសរើសទីតាំង';
+
+  @override
+  String get addNoteHint => 'បន្ថែមកំណត់ចំណាំ (មិនចាំបាច់)';
 
   @override
   String get noResultsFound => 'រកមិនឃើញលទ្ធផល';

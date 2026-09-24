@@ -3,86 +3,335 @@ import '../../core/constants/app_spacing.dart';
 import '../../core/theme/app_colors.dart';
 import '../../shared/widgets/ui_components.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../home/home_screen.dart' show NotificationsScreen;
 
 class FuelScreen extends StatelessWidget {
   const FuelScreen({super.key});
+
+  static const _capacityLiters = 300;
+  static const _fuelPercent = 0.35;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final remainingLiters = (_capacityLiters * _fuelPercent).round();
+    final lowFuel = _fuelPercent <= .35;
+
     return Scaffold(
-        appBar: curvedAppBar(l10n.navFuel),
-        floatingActionButton: FloatingActionButton.small(
-          tooltip: l10n.requestFuel,
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const FuelRequestScreen()),
+      backgroundColor: AppColors.background,
+      body: DashboardContent(
+        children: [
+          _FuelHeader(
+              onNotifications: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const NotificationsScreen()))),
+          const SizedBox(height: 24),
+          _FuelGaugeCard(
+            percent: _fuelPercent,
+            capacityLiters: _capacityLiters,
+            remainingLiters: remainingLiters,
+            lowFuel: lowFuel,
           ),
-          child: const Icon(Icons.add),
-        ),
-        body: ListView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
+          const SizedBox(height: 16),
+          _RequestFuelBanner(
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const FuelRequestScreen()))),
+          const SizedBox(height: 26),
+          SectionHeader(title: l10n.latestRequest),
+          const SizedBox(height: 8),
+          _RequestCard(
+            status: l10n.statusApproved,
+            liters: '120 L',
+            date: 'Today · 07:10 AM',
+            location: 'Main Depot',
+            color: AppColors.success,
+          ),
+          const SizedBox(height: 22),
+          SectionHeader(title: l10n.requestHistory),
+          const SizedBox(height: 8),
+          _RequestCard(
+            status: l10n.statusPending,
+            liters: '80 L',
+            date: 'Sep 14 · 04:20 PM',
+            location: 'Site A',
+            color: AppColors.warning,
+          ),
+          const SizedBox(height: 10),
+          _RequestCard(
+            status: l10n.statusApproved,
+            liters: '100 L',
+            date: 'Sep 09 · 08:30 AM',
+            location: 'Main Depot',
+            color: AppColors.success,
+          ),
+          const SizedBox(height: 10),
+          _RequestCard(
+            status: l10n.statusRejected,
+            liters: '60 L',
+            date: 'Sep 01 · 02:15 PM',
+            location: 'Site B',
+            color: AppColors.error,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A compact greeting header — just an icon, "Good morning," and the
+/// driver's name, matching the same top row used on the home Dashboard's
+/// WorkspaceHeader, without its status pill / title / artwork below it.
+class _FuelHeader extends StatelessWidget {
+  const _FuelHeader({required this.onNotifications});
+  final VoidCallback onNotifications;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(26)),
+        gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [AppColors.navy, Color(0xFF19588F)]),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
+          child: Row(
+            children: [
+              const Icon(Icons.local_gas_station_outlined,
+                  color: Color(0xFFAFD4F2), size: 22),
+              const SizedBox(width: 10),
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'PP 3A-1234  •  Cement Truck',
-                      style: TextStyle(color: AppColors.muted),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      '35%',
-                      style: TextStyle(
-                        color: AppColors.navy,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 42,
-                      ),
-                    ),
-                    Text(
-                      l10n.currentFuelLevel,
-                      style: const TextStyle(color: AppColors.muted),
-                    ),
-                    const SizedBox(height: 14),
-                    LinearProgressIndicator(
-                      value: .35,
-                      minHeight: 8,
-                      borderRadius: BorderRadius.circular(8),
-                      color: AppColors.warning,
-                      backgroundColor: AppColors.warning.withValues(alpha: .15),
-                    ),
+                    Text(l10n.goodMorning,
+                        style: const TextStyle(
+                            color: Color(0xFFB4CEE5), fontSize: 11)),
+                    const SizedBox(height: 3),
+                    const Text('Dara Sok',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15)),
                   ],
                 ),
               ),
+              IconButton.filled(
+                  onPressed: onNotifications,
+                  tooltip: l10n.navNotifications,
+                  style: IconButton.styleFrom(
+                      backgroundColor: Colors.white.withValues(alpha: .12),
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(38, 38),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(13))),
+                  icon: const Icon(Icons.notifications_outlined, size: 20)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FuelGaugeCard extends StatelessWidget {
+  const _FuelGaugeCard({
+    required this.percent,
+    required this.capacityLiters,
+    required this.remainingLiters,
+    required this.lowFuel,
+  });
+  final double percent;
+  final int capacityLiters, remainingLiters;
+  final bool lowFuel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final gaugeColor = lowFuel ? AppColors.warning : AppColors.blue;
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+              color: const Color(0xFF264D78).withValues(alpha: .08),
+              blurRadius: 20,
+              offset: const Offset(0, 8)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                    color: AppColors.navy.withValues(alpha: .1),
+                    shape: BoxShape.circle),
+                child: const Icon(Icons.local_shipping_outlined,
+                    color: AppColors.navy)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(children: [
+                    const Flexible(
+                        child: Text('PP 3A-1234',
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontWeight: FontWeight.w800, fontSize: 16))),
+                    const Icon(Icons.keyboard_arrow_down,
+                        size: 18, color: AppColors.muted),
+                  ]),
+                  Text(l10n.cementTruck,
+                      style: const TextStyle(
+                          color: AppColors.muted, fontSize: 12)),
+                ],
+              ),
             ),
-            const SizedBox(height: 26),
-            SectionHeader(title: l10n.latestRequest),
-            _RequestCard(
-              status: l10n.statusApproved,
-              liters: '120 L',
-              date: 'Today · 07:10 AM',
-              color: AppColors.success,
-            ),
-            const SizedBox(height: 22),
-            SectionHeader(title: l10n.requestHistory),
-            _RequestCard(
-              status: l10n.statusPending,
-              liters: '80 L',
-              date: 'Sep 14 · 04:20 PM',
-              color: AppColors.warning,
-            ),
-            const SizedBox(height: 10),
-            _RequestCard(
-              status: l10n.statusApproved,
-              liters: '100 L',
-              date: 'Sep 09 · 08:00 AM',
-              color: AppColors.success,
+            StatusBadge(label: l10n.onTripStatus, color: AppColors.success),
+          ]),
+          const SizedBox(height: 20),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 122,
+                height: 122,
+                child: Stack(alignment: Alignment.center, children: [
+                  SizedBox.expand(
+                    child: CircularProgressIndicator(
+                      value: percent,
+                      strokeWidth: 10,
+                      strokeCap: StrokeCap.round,
+                      backgroundColor: AppColors.blue.withValues(alpha: .1),
+                      valueColor: AlwaysStoppedAnimation(gaugeColor),
+                    ),
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.local_gas_station,
+                          color: gaugeColor, size: 22),
+                      const SizedBox(height: 4),
+                      Text('${(percent * 100).round()}%',
+                          style: const TextStyle(
+                              fontSize: 21, fontWeight: FontWeight.w900)),
+                      Text(l10n.currentFuelLevel,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              fontSize: 10, color: AppColors.muted)),
+                    ],
+                  ),
+                ]),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(children: [
+                  InfoRow(
+                      icon: Icons.water_drop_outlined,
+                      label: l10n.fuelCapacity,
+                      value: '$capacityLiters L'),
+                  const Divider(height: 1),
+                  InfoRow(
+                      icon: Icons.local_gas_station_outlined,
+                      label: l10n.remainingFuel,
+                      value: '$remainingLiters L'),
+                ]),
+              ),
+            ],
+          ),
+          if (lowFuel) ...[
+            const SizedBox(height: 14),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                  color: AppColors.warning.withValues(alpha: .1),
+                  borderRadius: BorderRadius.circular(14)),
+              child: Row(children: [
+                const Icon(Icons.error_outline,
+                    color: AppColors.warning, size: 19),
+                const SizedBox(width: 8),
+                Expanded(
+                    child: Text(l10n.lowFuelWarning,
+                        style: const TextStyle(
+                            color: AppColors.warning,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600))),
+              ]),
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _RequestFuelBanner extends StatelessWidget {
+  const _RequestFuelBanner({required this.onTap});
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Material(
+      color: AppColors.navy,
+      borderRadius: BorderRadius.circular(24),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(children: [
+            Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: .15),
+                    shape: BoxShape.circle),
+                child: const Icon(Icons.local_gas_station,
+                    color: Colors.white)),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.requestFuel,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 2),
+                  Text(l10n.createNewRequest,
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 12)),
+                ],
+              ),
+            ),
+            Container(
+                width: 34,
+                height: 34,
+                decoration: const BoxDecoration(
+                    color: Colors.white, shape: BoxShape.circle),
+                child: const Icon(Icons.arrow_forward,
+                    color: AppColors.navy, size: 18)),
+          ]),
         ),
-      );
+      ),
+    );
   }
 }
 
@@ -91,27 +340,51 @@ class _RequestCard extends StatelessWidget {
     required this.status,
     required this.liters,
     required this.date,
+    required this.location,
     required this.color,
   });
-  final String status, liters, date;
+  final String status, liters, date, location;
   final Color color;
   @override
   Widget build(BuildContext context) => Card(
-        child: ListTile(
-          contentPadding: const EdgeInsets.all(15),
-          leading: Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: .12),
-              borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: .12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(Icons.local_gas_station, color: color),
             ),
-            child: Icon(Icons.local_gas_station, color: color),
-          ),
-          title:
-              Text(liters, style: const TextStyle(fontWeight: FontWeight.w900)),
-          subtitle: Text('PP 3A-1234 · $date'),
-          trailing: StatusBadge(label: status, color: color),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(liters,
+                      style: const TextStyle(fontWeight: FontWeight.w900)),
+                  const SizedBox(height: 3),
+                  Text('PP 3A-1234 · $date',
+                      style: const TextStyle(
+                          color: AppColors.muted, fontSize: 12)),
+                  const SizedBox(height: 3),
+                  Row(children: [
+                    const Icon(Icons.location_on_outlined,
+                        size: 13, color: AppColors.muted),
+                    const SizedBox(width: 3),
+                    Text(location,
+                        style: const TextStyle(
+                            color: AppColors.muted, fontSize: 12)),
+                  ]),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            StatusBadge(label: status, color: color),
+          ]),
         ),
       );
 }
@@ -124,6 +397,14 @@ class FuelRequestScreen extends StatefulWidget {
 
 class _FuelRequestScreenState extends State<FuelRequestScreen> {
   String reason = 'Current Trip';
+  String? location;
+
+  static const _reasonIcons = {
+    'Current Trip': Icons.check_circle,
+    'Next Trip': Icons.event_outlined,
+    'Low Fuel': Icons.error_outline,
+    'Other': Icons.more_horiz,
+  };
 
   String _reasonLabel(AppLocalizations l10n, String item) {
     switch (item) {
@@ -138,45 +419,119 @@ class _FuelRequestScreenState extends State<FuelRequestScreen> {
     }
   }
 
+  Future<void> _pickLocation() async {
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final place in const ['Main Depot', 'Site A', 'Site B'])
+              ListTile(
+                leading: const Icon(Icons.location_on_outlined),
+                title: Text(place),
+                onTap: () => Navigator.pop(sheetContext, place),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (selected != null) setState(() => location = selected);
+  }
+
+  Widget _eyebrow(String label) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Text(
+          label.toUpperCase(),
+          style: const TextStyle(
+            color: AppColors.muted,
+            fontWeight: FontWeight.w800,
+            fontSize: 11,
+            letterSpacing: 1,
+          ),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-        appBar: curvedAppBar(l10n.requestFuel),
+        appBar: curvedAppBar(l10n.requestFuel, actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: Icon(Icons.local_gas_station_outlined,
+                color: Colors.white70),
+          ),
+        ]),
         body: ListView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
             const _RequestVehicle(),
             const SizedBox(height: 24),
+            _eyebrow(l10n.requestedAmount),
             TextField(
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                labelText: l10n.requestedAmount,
-                suffixText: l10n.liters,
+                prefixIcon: const Icon(Icons.local_gas_station_outlined),
+                hintText: l10n.enterFuelAmountHint,
               ),
             ),
-            const SizedBox(height: 20),
-            Text(l10n.reason, style: const TextStyle(fontWeight: FontWeight.w800)),
-            const SizedBox(height: 8),
+            const SizedBox(height: 18),
+            _eyebrow(l10n.locationLabel),
+            InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: _pickLocation,
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.location_on_outlined),
+                  suffixIcon: const Icon(Icons.chevron_right),
+                ),
+                child: Text(
+                  location ?? l10n.selectLocationHint,
+                  style: TextStyle(
+                      color: location == null
+                          ? Theme.of(context).hintColor
+                          : null),
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+            _eyebrow(l10n.reason),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: ['Current Trip', 'Next Trip', 'Low Fuel', 'Other']
                   .map(
                     (item) => ChoiceChip(
+                      avatar: Icon(_reasonIcons[item],
+                          size: 18,
+                          color: reason == item
+                              ? Colors.white
+                              : AppColors.muted),
                       label: Text(_reasonLabel(l10n, item)),
+                      labelStyle: TextStyle(
+                          color: reason == item ? Colors.white : null,
+                          fontWeight: FontWeight.w700),
                       selected: reason == item,
+                      selectedColor: AppColors.blue,
                       onSelected: (_) => setState(() => reason = item),
                     ),
                   )
                   .toList(),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
+            _eyebrow(l10n.optionalNote),
             TextField(
               maxLines: 3,
-              decoration: InputDecoration(hintText: l10n.optionalNote),
+              maxLength: 250,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.notes_outlined),
+                hintText: l10n.addNoteHint,
+              ),
             ),
-            const SizedBox(height: 26),
+            const SizedBox(height: 10),
             PrimaryButton(
               label: l10n.submitRequest,
               icon: Icons.send_outlined,
@@ -215,36 +570,83 @@ class _RequestVehicle extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return Card(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                l10n.requestFor,
-                style: const TextStyle(
-                  color: AppColors.muted,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 12,
-                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.vehicleLabel.toUpperCase(),
+                          style: const TextStyle(
+                            color: AppColors.muted,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 11,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'PP 3A-1234 · Cement Truck',
+                          style:
+                              TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                        color: AppColors.blue.withValues(alpha: .1),
+                        borderRadius: BorderRadius.circular(14)),
+                    child: const Icon(Icons.local_shipping_outlined,
+                        color: AppColors.blue),
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              const Text(
-                'PP 3A-1234 · Cement Truck',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
-              ),
-              const SizedBox(height: 14),
+              const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 14),
+                  child: Divider(height: 1)),
               Row(
                 children: [
-                  const Icon(Icons.local_gas_station, color: AppColors.warning),
-                  const SizedBox(width: 8),
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                        color: AppColors.warning.withValues(alpha: .12),
+                        shape: BoxShape.circle),
+                    child: const Icon(Icons.local_gas_station,
+                        color: AppColors.warning, size: 18),
+                  ),
+                  const SizedBox(width: 10),
                   Text(l10n.currentFuel),
                   const Spacer(),
                   Text(
                     '35%',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.warning,
-                        ),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 17,
+                        color: AppColors.warning),
+                  ),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 90,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: const LinearProgressIndicator(
+                        value: .35,
+                        minHeight: 8,
+                        color: AppColors.warning,
+                        backgroundColor: Color(0xFFE7ECF2),
+                      ),
+                    ),
                   ),
                 ],
               ),

@@ -7,6 +7,7 @@ import '../../shared/widgets/ui_components.dart';
 import '../../shared/widgets/trip_presentation.dart';
 import '../fuel/fuel_screens.dart';
 import '../profile/profile_screen.dart';
+import '../roles/fuel_reports_screen.dart';
 import '../trips/trip_screens.dart';
 import 'vehicle_screen.dart';
 
@@ -292,7 +293,9 @@ class NotificationsScreen extends StatelessWidget {
             leading: const CircleAvatar(child: Icon(Icons.route)),
             title: Text(l10n.notifNewTripTitle),
             subtitle: Text(l10n.notifNewTripSubtitle('N1-2034', '08:30 AM')),
-            trailing: Text(l10n.notifNow),
+            trailing: _NotifTrailing(time: l10n.notifNow),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const TripDetailScreen())),
           ),
           const Divider(),
           ListTile(
@@ -301,10 +304,31 @@ class NotificationsScreen extends StatelessWidget {
             title: Text(l10n.notifFuelApprovedTitle),
             subtitle:
                 Text(l10n.notifFuelApprovedSubtitle('120 L', 'PP 3A-1234')),
-            trailing: Text(l10n.notif2h),
+            trailing: _NotifTrailing(time: l10n.notif2h),
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const FuelReportsScreen())),
           ),
         ],
       ),
     );
   }
+}
+
+class _NotifTrailing extends StatelessWidget {
+  const _NotifTrailing({required this.time});
+  final String time;
+  @override
+  Widget build(BuildContext context) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(time,
+              style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          const SizedBox(width: 2),
+          const Icon(Icons.chevron_right, size: 20, color: AppColors.muted),
+        ],
+      );
 }

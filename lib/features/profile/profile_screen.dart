@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../core/theme/app_colors.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../shared/widgets/language_picker.dart';
+import '../../shared/widgets/ui_components.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({
@@ -28,43 +29,24 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late String name = widget.name;
+  late String phone = widget.isDriver ? '+855 12 345 678' : '';
+  String email = '';
 
-  Future<void> _editProfile() async {
-    final l10n = AppLocalizations.of(context)!;
-    var editedName = name;
-    final formKey = GlobalKey<FormState>();
-    final updated = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.personalInfo),
-        content: Form(
-          key: formKey,
-          child: TextFormField(
-            initialValue: name,
-            onChanged: (value) => editedName = value,
-            autofocus: true,
-            textCapitalization: TextCapitalization.words,
-            decoration: InputDecoration(labelText: l10n.fullName),
-            validator: (value) => value == null || value.trim().isEmpty
-                ? l10n.enterYourName
-                : null,
-          ),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(l10n.cancel)),
-          FilledButton(
-              onPressed: () {
-                if (formKey.currentState!.validate()) {
-                  Navigator.pop(context, editedName.trim());
-                }
-              },
-              child: Text(l10n.save)),
-        ],
+  Future<void> _openPersonalInfo() async {
+    final result = await Navigator.push<({String name, String phone, String email})>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PersonalInformationScreen(
+            name: name, phone: phone, email: email),
       ),
     );
-    if (mounted && updated != null) setState(() => name = updated);
+    if (mounted && result != null) {
+      setState(() {
+        name = result.name;
+        phone = result.phone;
+        email = result.email;
+      });
+    }
   }
 
   Future<void> _selectLanguage(BuildContext anchorContext) =>
@@ -140,7 +122,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               const SizedBox(width: 8),
                               IconButton.filled(
                                 tooltip: l10n.editProfile,
-                                onPressed: _editProfile,
+                                onPressed: _openPersonalInfo,
                                 style: IconButton.styleFrom(
                                     backgroundColor:
                                         Colors.white.withValues(alpha: .23),
@@ -245,7 +227,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 _Detail(
                                     icon: Icons.phone_outlined,
                                     label: l10n.phone,
-                                    value: '+855 12 345 678'),
+                                    value: phone),
                                 const Divider(height: 1),
                                 _Detail(
                                     icon: Icons.badge_outlined,
@@ -271,12 +253,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               label: l10n.personalInfo,
                               subtitle: l10n.personalInfoSubtitle,
                               color: const Color(0xFF0759AA),
-                              onTap: _editProfile),
+                              onTap: _openPersonalInfo),
                           _Menu(
                               icon: Icons.lock_outline,
                               label: l10n.changePassword,
                               subtitle: l10n.changePasswordSubtitle,
-                              color: const Color(0xFF009568)),
+                              color: const Color(0xFF009568),
+                              onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) =>
+                                          const ChangePasswordScreen()))),
                           Builder(
                               builder: (menuContext) => _Menu(
                                   icon: Icons.language,
@@ -293,11 +280,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               subtitle: l10n.toggleThemeSubtitle,
                               color: const Color(0xFFE79300),
                               onTap: widget.onThemeChanged),
-                          _Menu(
-                              icon: Icons.help_outline,
-                              label: l10n.helpSupport,
-                              subtitle: l10n.helpSupportSubtitle,
-                              color: const Color(0xFFED263B)),
                           const SizedBox(height: 10),
                           SizedBox(
                               width: double.infinity,
@@ -451,6 +433,209 @@ class _Menu extends StatelessWidget {
           ),
         )),
       );
+}
+
+class PersonalInformationScreen extends StatefulWidget {
+  const PersonalInformationScreen(
+      {super.key,
+      required this.name,
+      required this.phone,
+      required this.email});
+  final String name, phone, email;
+
+  @override
+  State<PersonalInformationScreen> createState() =>
+      _PersonalInformationScreenState();
+}
+
+class _PersonalInformationScreenState
+    extends State<PersonalInformationScreen> {
+  final _formKey = GlobalKey<FormState>();
+  late final _name = TextEditingController(text: widget.name);
+  late final _phone = TextEditingController(text: widget.phone);
+  late final _email = TextEditingController(text: widget.email);
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _phone.dispose();
+    _email.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    if (!_formKey.currentState!.validate()) return;
+    final l10n = AppLocalizations.of(context)!;
+    Navigator.pop(context, (
+      name: _name.text.trim(),
+      phone: _phone.text.trim(),
+      email: _email.text.trim(),
+    ));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(l10n.personalInfoSavedMsg)));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
+      appBar: curvedAppBar(l10n.personalInfo),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                controller: _name,
+                decoration: InputDecoration(
+                    labelText: l10n.fullName,
+                    prefixIcon: const Icon(Icons.person_outline),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14))),
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? l10n.enterYourName : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _phone,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                    labelText: l10n.phone,
+                    prefixIcon: const Icon(Icons.phone_outlined),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14))),
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? l10n.enterPhoneNumber
+                    : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _email,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                    labelText: l10n.emailLabel,
+                    prefixIcon: const Icon(Icons.email_outlined),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14))),
+                validator: (v) {
+                  final value = v?.trim() ?? '';
+                  if (value.isEmpty) return null;
+                  if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value)) {
+                    return l10n.enterValidEmail;
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 28),
+              PrimaryButton(label: l10n.save, onPressed: _save),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ChangePasswordScreen extends StatefulWidget {
+  const ChangePasswordScreen({super.key});
+
+  @override
+  State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
+}
+
+class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _current = TextEditingController();
+  final _newPass = TextEditingController();
+  final _confirm = TextEditingController();
+
+  @override
+  void dispose() {
+    _current.dispose();
+    _newPass.dispose();
+    _confirm.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (!_formKey.currentState!.validate()) return;
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.passwordUpdatedTitle),
+        content: Text(l10n.passwordUpdatedBody),
+        actions: [
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              Navigator.pop(context);
+            },
+            child: Text(l10n.done),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
+      appBar: curvedAppBar(l10n.changePassword),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                controller: _current,
+                obscureText: true,
+                decoration: InputDecoration(
+                    labelText: l10n.currentPasswordLabel,
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14))),
+                validator: (v) =>
+                    (v == null || v.isEmpty) ? l10n.enterCurrentPassword : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _newPass,
+                obscureText: true,
+                decoration: InputDecoration(
+                    labelText: l10n.newPasswordLabel,
+                    prefixIcon: const Icon(Icons.lock_reset_outlined),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14))),
+                validator: (v) =>
+                    (v == null || v.length < 6) ? l10n.passwordTooShort : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _confirm,
+                obscureText: true,
+                decoration: InputDecoration(
+                    labelText: l10n.confirmPasswordLabel,
+                    prefixIcon: const Icon(Icons.lock_person_outlined),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14))),
+                validator: (v) =>
+                    (v != _newPass.text) ? l10n.passwordMismatch : null,
+              ),
+              const SizedBox(height: 28),
+              PrimaryButton(
+                  label: l10n.updatePasswordButton, onPressed: _submit),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 void _logout(BuildContext context, VoidCallback? onLogout) {

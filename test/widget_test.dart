@@ -128,7 +128,7 @@ void main() {
       expect(find.text('No new notifications'), findsOneWidget);
       await tester.tap(find.byTooltip('Home'));
       await tester.pumpAndSettle();
-      expect(find.text('Good morning,'), findsOneWidget);
+      expect(find.text('Welcome,'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }
@@ -146,15 +146,32 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.tap(find.byTooltip('Edit profile'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextFormField), '   ');
+    final nameField = find.byType(TextFormField).first;
+    await tester.enterText(nameField, '   ');
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(find.text('Enter your name'), findsOneWidget);
-    await tester.enterText(find.byType(TextFormField), 'Dara Chan');
+    await tester.enterText(nameField, 'Dara Chan');
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(find.text('Dara Chan'), findsOneWidget);
     expect(find.text('DC'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('language picker popup opens without error', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(_wrap(ProfileScreen(
+        onThemeChanged: () {},
+        locale: _testLocale,
+        onLocaleChanged: _noopLocale)));
+    await tester.tap(find.text('Language'));
+    await tester.pumpAndSettle();
+    expect(find.text('English'), findsAtLeastNWidgets(1));
+    expect(find.text('ខ្មែរ'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

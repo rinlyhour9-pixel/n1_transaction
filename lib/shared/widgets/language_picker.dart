@@ -39,8 +39,26 @@ Future<void> showLanguagePicker(
   final selected = await showMenu<Locale>(
     context: anchorContext,
     position: position,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-    constraints: const BoxConstraints(minWidth: 168, maxWidth: 168),
+    elevation: 12,
+    shadowColor: Colors.black.withValues(alpha: .18),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(20),
+      side: BorderSide(color: Colors.black.withValues(alpha: .05)),
+    ),
+    // Match the width of the row it's anchored to, so it lines up with the
+    // other settings rows instead of floating as a narrow, short popup.
+    constraints: BoxConstraints(
+        minWidth: button.size.width, maxWidth: button.size.width),
+    // Flutter's popup menu reuses this curve for the fade-in opacity too,
+    // which asserts its value stays within [0, 1] — so an overshoot curve
+    // like easeOutBack crashes the menu open animation. Stick to a curve
+    // that never leaves that range.
+    popUpAnimationStyle: AnimationStyle(
+      curve: Curves.easeOutCubic,
+      duration: const Duration(milliseconds: 220),
+      reverseCurve: Curves.easeIn,
+      reverseDuration: const Duration(milliseconds: 140),
+    ),
     items: [
       // Each option is always shown in its own native script, not
       // translated into whichever language is currently active — that
@@ -49,8 +67,8 @@ Future<void> showLanguagePicker(
       for (final language in _languages)
         PopupMenuItem<Locale>(
           value: language.locale,
-          height: 44,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          height: 60,
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           child: _LanguageOption(
             flagAsset: language.flagAsset,
             name: language.name,
@@ -87,33 +105,56 @@ class _LanguageOption extends StatelessWidget {
   final bool selected;
 
   @override
-  Widget build(BuildContext context) => Row(
-        children: [
-          Container(
-            width: 30,
-            height: 30,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: selected
-                  ? AppColors.navy.withValues(alpha: .1)
-                  : Colors.transparent,
-              shape: BoxShape.circle,
+  Widget build(BuildContext context) => AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppColors.navy.withValues(alpha: .08)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                    color: Colors.black.withValues(alpha: .08), width: 1),
+              ),
+              child: ClipOval(child: _FlagIcon(flagAsset, size: 34)),
             ),
-            child: _FlagIcon(flagAsset, size: 20),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(name,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w700, fontSize: 14)),
-          ),
-          SizedBox(
-            width: 18,
-            child: selected
-                ? const Icon(Icons.check, size: 18, color: AppColors.navy)
-                : null,
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(name,
+                  style: TextStyle(
+                      fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                      fontSize: 15,
+                      color: selected
+                          ? AppColors.navy
+                          : Theme.of(context).colorScheme.onSurface)),
+            ),
+            const SizedBox(width: 6),
+            AnimatedScale(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOutBack,
+              scale: selected ? 1 : 0,
+              child: Container(
+                width: 22,
+                height: 22,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.navy,
+                ),
+                child: const Icon(Icons.check, size: 14, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
       );
 }
 

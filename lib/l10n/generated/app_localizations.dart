@@ -449,7 +449,7 @@ abstract class AppLocalizations {
   /// No description provided for @goodMorning.
   ///
   /// In en, this message translates to:
-  /// **'Good morning,'**
+  /// **'Welcome,'**
   String get goodMorning;
 
   /// No description provided for @onDuty.
@@ -728,12 +728,6 @@ abstract class AppLocalizations {
   /// **'Done'**
   String get done;
 
-  /// No description provided for @requestFor.
-  ///
-  /// In en, this message translates to:
-  /// **'REQUEST FOR'**
-  String get requestFor;
-
   /// No description provided for @currentFuel.
   ///
   /// In en, this message translates to:
@@ -866,17 +860,83 @@ abstract class AppLocalizations {
   /// **'Switch between light and dark mode'**
   String get toggleThemeSubtitle;
 
-  /// No description provided for @helpSupport.
+  /// No description provided for @emailLabel.
   ///
   /// In en, this message translates to:
-  /// **'Help & support'**
-  String get helpSupport;
+  /// **'Email'**
+  String get emailLabel;
 
-  /// No description provided for @helpSupportSubtitle.
+  /// No description provided for @enterPhoneNumber.
   ///
   /// In en, this message translates to:
-  /// **'Get help or contact our team'**
-  String get helpSupportSubtitle;
+  /// **'Enter your phone number'**
+  String get enterPhoneNumber;
+
+  /// No description provided for @enterValidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email'**
+  String get enterValidEmail;
+
+  /// No description provided for @personalInfoSavedMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal information updated.'**
+  String get personalInfoSavedMsg;
+
+  /// No description provided for @currentPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get currentPasswordLabel;
+
+  /// No description provided for @enterCurrentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your current password'**
+  String get enterCurrentPassword;
+
+  /// No description provided for @newPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get newPasswordLabel;
+
+  /// No description provided for @confirmPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new password'**
+  String get confirmPasswordLabel;
+
+  /// No description provided for @passwordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get passwordMismatch;
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
+  String get passwordTooShort;
+
+  /// No description provided for @updatePasswordButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Update password'**
+  String get updatePasswordButton;
+
+  /// No description provided for @passwordUpdatedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Password updated'**
+  String get passwordUpdatedTitle;
+
+  /// No description provided for @passwordUpdatedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your password has been changed successfully.'**
+  String get passwordUpdatedBody;
 
   /// No description provided for @logOut.
   ///
@@ -1309,6 +1369,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recent fuel activity'**
   String get recentFuelActivity;
+
+  /// No description provided for @helloGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello,'**
+  String get helloGreeting;
+
+  /// No description provided for @fuelTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay fueled, keep moving'**
+  String get fuelTagline;
+
+  /// No description provided for @onTripStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'On Trip'**
+  String get onTripStatus;
+
+  /// No description provided for @fuelCapacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel capacity'**
+  String get fuelCapacity;
+
+  /// No description provided for @remainingFuel.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining'**
+  String get remainingFuel;
+
+  /// No description provided for @lowFuelWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel level is low. Please request refuel soon.'**
+  String get lowFuelWarning;
+
+  /// No description provided for @createNewRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new request'**
+  String get createNewRequest;
+
+  /// No description provided for @locationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get locationLabel;
+
+  /// No description provided for @vehicleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle'**
+  String get vehicleLabel;
+
+  /// No description provided for @enterFuelAmountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter fuel amount (e.g. 50 L)'**
+  String get enterFuelAmountHint;
+
+  /// No description provided for @selectLocationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select location'**
+  String get selectLocationHint;
+
+  /// No description provided for @addNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note (optional)'**
+  String get addNoteHint;
 
   /// No description provided for @noResultsFound.
   ///

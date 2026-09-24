@@ -207,7 +207,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navNotifications => 'Notifications';
 
   @override
-  String get goodMorning => 'Good morning,';
+  String get goodMorning => 'Welcome,';
 
   @override
   String get onDuty => 'On duty';
@@ -355,9 +355,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get done => 'Done';
 
   @override
-  String get requestFor => 'REQUEST FOR';
-
-  @override
   String get currentFuel => 'Current fuel';
 
   @override
@@ -424,10 +421,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get toggleThemeSubtitle => 'Switch between light and dark mode';
 
   @override
-  String get helpSupport => 'Help & support';
+  String get emailLabel => 'Email';
 
   @override
-  String get helpSupportSubtitle => 'Get help or contact our team';
+  String get enterPhoneNumber => 'Enter your phone number';
+
+  @override
+  String get enterValidEmail => 'Enter a valid email';
+
+  @override
+  String get personalInfoSavedMsg => 'Personal information updated.';
+
+  @override
+  String get currentPasswordLabel => 'Current password';
+
+  @override
+  String get enterCurrentPassword => 'Enter your current password';
+
+  @override
+  String get newPasswordLabel => 'New password';
+
+  @override
+  String get confirmPasswordLabel => 'Confirm new password';
+
+  @override
+  String get passwordMismatch => 'Passwords do not match';
+
+  @override
+  String get passwordTooShort => 'Password must be at least 6 characters';
+
+  @override
+  String get updatePasswordButton => 'Update password';
+
+  @override
+  String get passwordUpdatedTitle => 'Password updated';
+
+  @override
+  String get passwordUpdatedBody =>
+      'Your password has been changed successfully.';
 
   @override
   String get logOut => 'Log out';
@@ -653,6 +684,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recentFuelActivity => 'Recent fuel activity';
+
+  @override
+  String get helloGreeting => 'Hello,';
+
+  @override
+  String get fuelTagline => 'Stay fueled, keep moving';
+
+  @override
+  String get onTripStatus => 'On Trip';
+
+  @override
+  String get fuelCapacity => 'Fuel capacity';
+
+  @override
+  String get remainingFuel => 'Remaining';
+
+  @override
+  String get lowFuelWarning => 'Fuel level is low. Please request refuel soon.';
+
+  @override
+  String get createNewRequest => 'Create new request';
+
+  @override
+  String get locationLabel => 'Location';
+
+  @override
+  String get vehicleLabel => 'Vehicle';
+
+  @override
+  String get enterFuelAmountHint => 'Enter fuel amount (e.g. 50 L)';
+
+  @override
+  String get selectLocationHint => 'Select location';
+
+  @override
+  String get addNoteHint => 'Add a note (optional)';
 
   @override
   String get noResultsFound => 'No results found';
