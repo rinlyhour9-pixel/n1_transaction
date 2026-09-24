@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/theme/app_colors.dart';
-import '../../shared/models/trip.dart';
+import '../../models/models.dart';
 import '../../shared/widgets/ui_components.dart';
 import '../../shared/widgets/trip_presentation.dart';
 import '../../shared/widgets/date_filter.dart';

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/theme/app_colors.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../../shared/models/trip.dart';
+import '../../models/models.dart';
 import '../../shared/widgets/ui_components.dart';
 import '../../shared/widgets/trip_presentation.dart';
 import '../fuel/fuel_screens.dart';
@@ -120,10 +120,10 @@ class Dashboard extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [
           WorkspaceHeader(
-            name: 'Dara Sok',
+            name: demoVehicle.driverName,
             workspace: l10n.roleDriverShort,
             icon: Icons.local_shipping_outlined,
-            detail: 'DR-001 · ${l10n.onDuty}',
+            detail: '${demoVehicle.driverId} · ${l10n.onDuty}',
             onNotifications: onNotifications,
             onProfile: onProfile,
           ),
@@ -287,30 +287,26 @@ class NotificationsScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: curvedAppBar(l10n.notifications),
-      body: ListView(
-        children: [
-          ListTile(
-            leading: const CircleAvatar(child: Icon(Icons.route)),
-            title: Text(l10n.notifNewTripTitle),
-            subtitle: Text(l10n.notifNewTripSubtitle('N1-2034', '08:30 AM')),
-            trailing: _NotifTrailing(time: l10n.notifNow),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const TripDetailScreen())),
-          ),
-          const Divider(),
-          ListTile(
-            leading:
-                const CircleAvatar(child: Icon(Icons.local_gas_station)),
-            title: Text(l10n.notifFuelApprovedTitle),
-            subtitle:
-                Text(l10n.notifFuelApprovedSubtitle('120 L', 'PP 3A-1234')),
-            trailing: _NotifTrailing(time: l10n.notif2h),
+      body: ListView.separated(
+        itemCount: demoNotifications.length,
+        separatorBuilder: (context, index) => const Divider(),
+        itemBuilder: (context, index) {
+          final notification = demoNotifications[index];
+          return ListTile(
+            leading: CircleAvatar(child: Icon(notification.icon)),
+            title: Text(notification.title(context)),
+            subtitle: Text(notification.subtitle(context)),
+            trailing: _NotifTrailing(time: notification.time.label(context)),
             onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (_) => const FuelReportsScreen())),
-          ),
-        ],
+                    builder: (_) => switch (notification.type) {
+                          NotificationType.newTrip => const TripDetailScreen(),
+                          NotificationType.fuelApproved =>
+                            const FuelReportsScreen(),
+                        })),
+          );
+        },
       ),
     );
   }

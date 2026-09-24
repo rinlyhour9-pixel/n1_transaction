@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/theme/app_colors.dart';
+import '../../models/models.dart';
 import '../../shared/widgets/ui_components.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../home/home_screen.dart' show NotificationsScreen;
@@ -8,14 +9,11 @@ import '../home/home_screen.dart' show NotificationsScreen;
 class FuelScreen extends StatelessWidget {
   const FuelScreen({super.key});
 
-  static const _capacityLiters = 300;
-  static const _fuelPercent = 0.35;
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final remainingLiters = (_capacityLiters * _fuelPercent).round();
-    final lowFuel = _fuelPercent <= .35;
+    final vehicle = demoVehicle;
+    final requests = demoFuelRequests;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -27,12 +25,7 @@ class FuelScreen extends StatelessWidget {
                   MaterialPageRoute(
                       builder: (_) => const NotificationsScreen()))),
           const SizedBox(height: 24),
-          _FuelGaugeCard(
-            percent: _fuelPercent,
-            capacityLiters: _capacityLiters,
-            remainingLiters: remainingLiters,
-            lowFuel: lowFuel,
-          ),
+          _FuelGaugeCard(vehicle: vehicle),
           const SizedBox(height: 16),
           _RequestFuelBanner(
               onTap: () => Navigator.push(
@@ -42,39 +35,13 @@ class FuelScreen extends StatelessWidget {
           const SizedBox(height: 26),
           SectionHeader(title: l10n.latestRequest),
           const SizedBox(height: 8),
-          _RequestCard(
-            status: l10n.statusApproved,
-            liters: '120 L',
-            date: 'Today · 07:10 AM',
-            location: 'Main Depot',
-            color: AppColors.success,
-          ),
+          _RequestCard(request: requests.first),
           const SizedBox(height: 22),
           SectionHeader(title: l10n.requestHistory),
-          const SizedBox(height: 8),
-          _RequestCard(
-            status: l10n.statusPending,
-            liters: '80 L',
-            date: 'Sep 14 · 04:20 PM',
-            location: 'Site A',
-            color: AppColors.warning,
-          ),
-          const SizedBox(height: 10),
-          _RequestCard(
-            status: l10n.statusApproved,
-            liters: '100 L',
-            date: 'Sep 09 · 08:30 AM',
-            location: 'Main Depot',
-            color: AppColors.success,
-          ),
-          const SizedBox(height: 10),
-          _RequestCard(
-            status: l10n.statusRejected,
-            liters: '60 L',
-            date: 'Sep 01 · 02:15 PM',
-            location: 'Site B',
-            color: AppColors.error,
-          ),
+          for (final request in requests.skip(1)) ...[
+            const SizedBox(height: 8),
+            _RequestCard(request: request),
+          ],
         ],
       ),
     );
@@ -91,6 +58,11 @@ class _FuelHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    // FuelScreen normally lives as a bottom-nav tab inside DriverShell (no
+    // route to pop), but it's also pushed standalone from VehicleScreen's
+    // "Fuel Requests" tile — show a back button only in that pushed case,
+    // since there's no other way out of a route with no AppBar.
+    final canPop = Navigator.canPop(context);
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
@@ -106,6 +78,19 @@ class _FuelHeader extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
           child: Row(
             children: [
+              if (canPop) ...[
+                IconButton.filled(
+                    onPressed: () => Navigator.pop(context),
+                    tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                    style: IconButton.styleFrom(
+                        backgroundColor: Colors.white.withValues(alpha: .12),
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(38, 38),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(13))),
+                    icon: const Icon(Icons.arrow_back, size: 20)),
+                const SizedBox(width: 10),
+              ],
               const Icon(Icons.local_gas_station_outlined,
                   color: Color(0xFFAFD4F2), size: 22),
               const SizedBox(width: 10),
@@ -117,8 +102,8 @@ class _FuelHeader extends StatelessWidget {
                         style: const TextStyle(
                             color: Color(0xFFB4CEE5), fontSize: 11)),
                     const SizedBox(height: 3),
-                    const Text('Dara Sok',
-                        style: TextStyle(
+                    Text(demoVehicle.driverName,
+                        style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
                             fontSize: 15)),
@@ -144,19 +129,14 @@ class _FuelHeader extends StatelessWidget {
 }
 
 class _FuelGaugeCard extends StatelessWidget {
-  const _FuelGaugeCard({
-    required this.percent,
-    required this.capacityLiters,
-    required this.remainingLiters,
-    required this.lowFuel,
-  });
-  final double percent;
-  final int capacityLiters, remainingLiters;
-  final bool lowFuel;
+  const _FuelGaugeCard({required this.vehicle});
+  final Vehicle vehicle;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final percent = vehicle.fuelPercent;
+    final lowFuel = vehicle.isLowFuel;
     final gaugeColor = lowFuel ? AppColors.warning : AppColors.blue;
     return Container(
       padding: const EdgeInsets.all(18),
@@ -188,10 +168,10 @@ class _FuelGaugeCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(children: [
-                    const Flexible(
-                        child: Text('PP 3A-1234',
+                    Flexible(
+                        child: Text(vehicle.plate,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontWeight: FontWeight.w800, fontSize: 16))),
                     const Icon(Icons.keyboard_arrow_down,
                         size: 18, color: AppColors.muted),
@@ -244,12 +224,12 @@ class _FuelGaugeCard extends StatelessWidget {
                   InfoRow(
                       icon: Icons.water_drop_outlined,
                       label: l10n.fuelCapacity,
-                      value: '$capacityLiters L'),
+                      value: '${vehicle.capacityLiters} L'),
                   const Divider(height: 1),
                   InfoRow(
                       icon: Icons.local_gas_station_outlined,
                       label: l10n.remainingFuel,
-                      value: '$remainingLiters L'),
+                      value: '${vehicle.remainingLiters} L'),
                 ]),
               ),
             ],
@@ -336,57 +316,53 @@ class _RequestFuelBanner extends StatelessWidget {
 }
 
 class _RequestCard extends StatelessWidget {
-  const _RequestCard({
-    required this.status,
-    required this.liters,
-    required this.date,
-    required this.location,
-    required this.color,
-  });
-  final String status, liters, date, location;
-  final Color color;
+  const _RequestCard({required this.request});
+  final FuelRequest request;
   @override
-  Widget build(BuildContext context) => Card(
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: .12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(Icons.local_gas_station, color: color),
+  Widget build(BuildContext context) {
+    final color = request.status.color;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Row(children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: .12),
+              borderRadius: BorderRadius.circular(12),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(liters,
-                      style: const TextStyle(fontWeight: FontWeight.w900)),
-                  const SizedBox(height: 3),
-                  Text('PP 3A-1234 · $date',
+            child: Icon(Icons.local_gas_station, color: color),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${request.liters} L',
+                    style: const TextStyle(fontWeight: FontWeight.w900)),
+                const SizedBox(height: 3),
+                Text('${request.vehiclePlate} · ${request.date}',
+                    style: const TextStyle(
+                        color: AppColors.muted, fontSize: 12)),
+                const SizedBox(height: 3),
+                Row(children: [
+                  const Icon(Icons.location_on_outlined,
+                      size: 13, color: AppColors.muted),
+                  const SizedBox(width: 3),
+                  Text(request.location,
                       style: const TextStyle(
                           color: AppColors.muted, fontSize: 12)),
-                  const SizedBox(height: 3),
-                  Row(children: [
-                    const Icon(Icons.location_on_outlined,
-                        size: 13, color: AppColors.muted),
-                    const SizedBox(width: 3),
-                    Text(location,
-                        style: const TextStyle(
-                            color: AppColors.muted, fontSize: 12)),
-                  ]),
-                ],
-              ),
+                ]),
+              ],
             ),
-            const SizedBox(width: 8),
-            StatusBadge(label: status, color: color),
-          ]),
-        ),
-      );
+          ),
+          const SizedBox(width: 8),
+          StatusBadge(label: request.status.label(context), color: color),
+        ]),
+      ),
+    );
+  }
 }
 
 class FuelRequestScreen extends StatefulWidget {
@@ -396,28 +372,8 @@ class FuelRequestScreen extends StatefulWidget {
 }
 
 class _FuelRequestScreenState extends State<FuelRequestScreen> {
-  String reason = 'Current Trip';
+  FuelReason reason = FuelReason.currentTrip;
   String? location;
-
-  static const _reasonIcons = {
-    'Current Trip': Icons.check_circle,
-    'Next Trip': Icons.event_outlined,
-    'Low Fuel': Icons.error_outline,
-    'Other': Icons.more_horiz,
-  };
-
-  String _reasonLabel(AppLocalizations l10n, String item) {
-    switch (item) {
-      case 'Current Trip':
-        return l10n.reasonCurrentTrip;
-      case 'Next Trip':
-        return l10n.reasonNextTrip;
-      case 'Low Fuel':
-        return l10n.reasonLowFuel;
-      default:
-        return l10n.reasonOther;
-    }
-  }
 
   Future<void> _pickLocation() async {
     final selected = await showModalBottomSheet<String>(
@@ -502,15 +458,15 @@ class _FuelRequestScreenState extends State<FuelRequestScreen> {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: ['Current Trip', 'Next Trip', 'Low Fuel', 'Other']
+              children: FuelReason.values
                   .map(
                     (item) => ChoiceChip(
-                      avatar: Icon(_reasonIcons[item],
+                      avatar: Icon(item.icon,
                           size: 18,
                           color: reason == item
                               ? Colors.white
                               : AppColors.muted),
-                      label: Text(_reasonLabel(l10n, item)),
+                      label: Text(item.label(context)),
                       labelStyle: TextStyle(
                           color: reason == item ? Colors.white : null,
                           fontWeight: FontWeight.w700),
@@ -591,10 +547,10 @@ class _RequestVehicle extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'PP 3A-1234 · Cement Truck',
-                          style:
-                              TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
+                        Text(
+                          '${demoVehicle.plate} · ${demoVehicle.type}',
+                          style: const TextStyle(
+                              fontSize: 17, fontWeight: FontWeight.w900),
                         ),
                       ],
                     ),
@@ -629,7 +585,7 @@ class _RequestVehicle extends StatelessWidget {
                   Text(l10n.currentFuel),
                   const Spacer(),
                   Text(
-                    '35%',
+                    '${(demoVehicle.fuelPercent * 100).round()}%',
                     style: const TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 17,
@@ -640,11 +596,11 @@ class _RequestVehicle extends StatelessWidget {
                     width: 90,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: const LinearProgressIndicator(
-                        value: .35,
+                      child: LinearProgressIndicator(
+                        value: demoVehicle.fuelPercent,
                         minHeight: 8,
                         color: AppColors.warning,
-                        backgroundColor: Color(0xFFE7ECF2),
+                        backgroundColor: const Color(0xFFE7ECF2),
                       ),
                     ),
                   ),

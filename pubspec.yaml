@@ -25,25 +25,18 @@ flutter:
   generate: true
   assets:
     - assets/images_Logo/
+    - assets/image/
   uses-material-design: true
   fonts:
-    - family: NotoSansKhmer
+    - family: Battambang
       fonts:
-        - asset: assets/font_khmer/NotoSansKhmer-Thin.ttf
+        - asset: assets/font_khmer/Battambang-Thin.ttf
           weight: 100
-        - asset: assets/font_khmer/NotoSansKhmer-ExtraLight.ttf
-          weight: 200
-        - asset: assets/font_khmer/NotoSansKhmer-Light.ttf
+        - asset: assets/font_khmer/Battambang-Light.ttf
           weight: 300
-        - asset: assets/font_khmer/NotoSansKhmer-Regular.ttf
+        - asset: assets/font_khmer/Battambang-Regular.ttf
           weight: 400
-        - asset: assets/font_khmer/NotoSansKhmer-Medium.ttf
-          weight: 500
-        - asset: assets/font_khmer/NotoSansKhmer-SemiBold.ttf
-          weight: 600
-        - asset: assets/font_khmer/NotoSansKhmer-Bold.ttf
+        - asset: assets/font_khmer/Battambang-Bold.ttf
           weight: 700
-        - asset: assets/font_khmer/NotoSansKhmer-ExtraBold.ttf
-          weight: 800
-        - asset: assets/font_khmer/NotoSansKhmer-Black.ttf
+        - asset: assets/font_khmer/Battambang-Black.ttf
           weight: 900

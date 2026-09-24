@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/theme/app_colors.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../models/models.dart';
 import '../../shared/widgets/ui_components.dart';
 import '../auth/auth_flow.dart';
 import '../profile/profile_screen.dart';
@@ -216,86 +217,181 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
         appBar: curvedAppBar(
-            widget.editing ? l10n.tripLabel('N1-2034') : l10n.createATrip),
+            widget.editing ? l10n.tripLabel('N1-2034') : l10n.createATrip,
+            toolbarHeight: 92,
+            backgroundImage: Stack(
+              fit: StackFit.expand,
+              children: [
+                Positioned(
+                  right: -22,
+                  bottom: -8,
+                  child: Image.asset(
+                    'assets/image/background_header.png',
+                    height: 104,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ],
+            )),
         body: _RoleContent(
           maxWidth: 680,
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
-            Text(l10n.planTheTrip,
-                style: const TextStyle(
-                    fontSize: 23, fontWeight: FontWeight.w900)),
-            const SizedBox(height: 6),
-            Text(l10n.planTheTripSubtitle,
-                style: const TextStyle(color: AppColors.muted)),
-            const SizedBox(height: 24),
-            _FieldTitle(l10n.vehicleAndDriver),
-            DropdownButtonFormField<String>(
-              initialValue: vehicle,
-              decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.local_shipping_outlined)),
-              items: const [
-                DropdownMenuItem(
-                    value: 'PP 3A-1234',
-                    child: Text('PP 3A-1234 · Cement Truck')),
-                DropdownMenuItem(
-                    value: 'PP 2D-9090',
-                    child: Text('PP 2D-9090 · Dump Truck')),
-              ],
-              onChanged: (value) => setState(() => vehicle = value!),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [AppColors.navy, Color(0xFF19588F)]),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(Icons.local_shipping_rounded,
+                        color: Colors.white, size: 23),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(l10n.planTheTrip,
+                            style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: -.3)),
+                        const SizedBox(height: 5),
+                        Text(l10n.planTheTripSubtitle,
+                            style: const TextStyle(
+                                color: AppColors.muted, height: 1.35)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: driver,
-              decoration:
-                  const InputDecoration(prefixIcon: Icon(Icons.person_outline)),
-              items: const [
-                DropdownMenuItem(
-                    value: 'Dara Sok · DR-001',
-                    child: Text('Dara Sok · DR-001')),
-                DropdownMenuItem(
-                    value: 'Vannak Lim · DR-012',
-                    child: Text('Vannak Lim · DR-012')),
+            const SizedBox(height: 26),
+            _FormSectionCard(
+              icon: Icons.local_shipping_outlined,
+              color: AppColors.blue,
+              title: l10n.vehicleAndDriver,
+              children: [
+                DropdownButtonFormField<String>(
+                  initialValue: vehicle,
+                  isExpanded: true,
+                  decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.local_shipping_outlined,
+                          color: AppColors.blue)),
+                  items: const [
+                    DropdownMenuItem(
+                        value: 'PP 3A-1234',
+                        child: Text('PP 3A-1234 · Cement Truck',
+                            overflow: TextOverflow.ellipsis)),
+                    DropdownMenuItem(
+                        value: 'PP 2D-9090',
+                        child: Text('PP 2D-9090 · Dump Truck',
+                            overflow: TextOverflow.ellipsis)),
+                  ],
+                  onChanged: (value) => setState(() => vehicle = value!),
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  initialValue: driver,
+                  isExpanded: true,
+                  decoration: InputDecoration(
+                      prefixIcon:
+                          Icon(Icons.person_outline, color: AppColors.blue)),
+                  items: const [
+                    DropdownMenuItem(
+                        value: 'Dara Sok · DR-001',
+                        child: Text('Dara Sok · DR-001',
+                            overflow: TextOverflow.ellipsis)),
+                    DropdownMenuItem(
+                        value: 'Vannak Lim · DR-012',
+                        child: Text('Vannak Lim · DR-012',
+                            overflow: TextOverflow.ellipsis)),
+                  ],
+                  onChanged: (value) => setState(() => driver = value!),
+                ),
               ],
-              onChanged: (value) => setState(() => driver = value!),
             ),
-            const SizedBox(height: 24),
-            _FieldTitle(l10n.route),
-            TextField(
-                decoration: InputDecoration(
-                    labelText: l10n.pickupLocation,
-                    hintText: 'N1 Cement Factory',
-                    prefixIcon: const Icon(Icons.radio_button_checked))),
-            const SizedBox(height: 12),
-            TextField(
-                decoration: InputDecoration(
-                    labelText: l10n.deliveryLocation,
-                    hintText: 'Construction Site A',
-                    prefixIcon: const Icon(Icons.location_on_outlined))),
-            const SizedBox(height: 24),
-            _FieldTitle(l10n.material),
-            DropdownButtonFormField<String>(
-              initialValue: material,
-              decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.inventory_2_outlined)),
-              items: const [
-                DropdownMenuItem(value: 'Cement', child: Text('Cement')),
-                DropdownMenuItem(value: 'Soil', child: Text('Soil')),
+            const SizedBox(height: 16),
+            _FormSectionCard(
+              icon: Icons.route_outlined,
+              color: AppColors.success,
+              title: l10n.route,
+              children: [
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(width: 20, child: _RouteConnector()),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          children: [
+                            TextField(
+                                decoration: InputDecoration(
+                                    labelText: l10n.pickupLocation,
+                                    hintText: 'N1 Cement Factory',
+                                    prefixIcon: Icon(
+                                        Icons.radio_button_checked,
+                                        color: AppColors.success))),
+                            const SizedBox(height: 14),
+                            TextField(
+                                decoration: InputDecoration(
+                                    labelText: l10n.deliveryLocation,
+                                    hintText: 'Construction Site A',
+                                    prefixIcon: const Icon(
+                                        Icons.location_on_outlined,
+                                        color: AppColors.error))),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
-              onChanged: (value) => setState(() => material = value!),
             ),
-            const SizedBox(height: 12),
-            TextField(
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                    labelText: l10n.quantity,
-                    suffixText: l10n.tons,
-                    prefixIcon: const Icon(Icons.scale_outlined))),
-            const SizedBox(height: 12),
-            TextField(
-                maxLines: 3,
-                decoration: InputDecoration(
-                    labelText: l10n.tripNoteOptional,
-                    prefixIcon: const Icon(Icons.notes_outlined))),
+            const SizedBox(height: 16),
+            _FormSectionCard(
+              icon: Icons.inventory_2_outlined,
+              color: const Color(0xFF7557D9),
+              title: l10n.material,
+              children: [
+                DropdownButtonFormField<String>(
+                  initialValue: material,
+                  isExpanded: true,
+                  decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.inventory_2_outlined,
+                          color: Color(0xFF7557D9))),
+                  items: const [
+                    DropdownMenuItem(value: 'Cement', child: Text('Cement')),
+                    DropdownMenuItem(value: 'Soil', child: Text('Soil')),
+                  ],
+                  onChanged: (value) => setState(() => material = value!),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                        labelText: l10n.quantity,
+                        suffixText: l10n.tons,
+                        prefixIcon: const Icon(Icons.scale_outlined,
+                            color: Color(0xFF7557D9)))),
+                const SizedBox(height: 12),
+                TextField(
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                        labelText: l10n.tripNoteOptional,
+                        prefixIcon: const Icon(Icons.notes_outlined))),
+              ],
+            ),
             const SizedBox(height: 28),
             PrimaryButton(
               label: widget.editing
@@ -310,6 +406,91 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
   }
 }
 
+/// A titled, icon-badged card used to group related fields on the trip
+/// planning form so each step of the workflow reads as a distinct block.
+class _FormSectionCard extends StatelessWidget {
+  const _FormSectionCard(
+      {required this.icon,
+      required this.color,
+      required this.title,
+      required this.children});
+  final IconData icon;
+  final Color color;
+  final String title;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: .12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(icon, color: color, size: 17),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(title,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w800, fontSize: 15)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ...children,
+            ],
+          ),
+        ),
+      );
+}
+
+/// The pickup-to-delivery timeline glyph shown beside the route fields:
+/// a start dot, a connecting line, and an end pin, mirroring the mental
+/// model of a map route rather than two unrelated text fields.
+class _RouteConnector extends StatelessWidget {
+  const _RouteConnector();
+
+  @override
+  Widget build(BuildContext context) => Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 20),
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(
+              color: AppColors.success,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 2),
+              boxShadow: [
+                BoxShadow(
+                    color: AppColors.success.withValues(alpha: .35),
+                    blurRadius: 4)
+              ],
+            ),
+          ),
+          Expanded(
+            child: Container(
+              width: 2,
+              margin: const EdgeInsets.symmetric(vertical: 4),
+              color: AppColors.muted.withValues(alpha: .25),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 18),
+            child: Icon(Icons.location_on,
+                size: 20, color: AppColors.error),
+          ),
+        ],
+      );
+}
+
 class FuelStockManagerDashboard extends StatefulWidget {
   const FuelStockManagerDashboard({super.key, required this.onSwitchRole});
   final VoidCallback onSwitchRole;
@@ -320,19 +501,21 @@ class FuelStockManagerDashboard extends StatefulWidget {
 }
 
 class _FuelStockManagerDashboardState extends State<FuelStockManagerDashboard> {
-  String firstStatus = 'Pending';
+  late final requests = List<FuelRequest>.of(demoPendingFuelRequests);
 
-  void _updateFirstStatus(String status) {
+  void _updateStatus(int index, FuelRequestStatus status) {
     final l10n = AppLocalizations.of(context)!;
-    setState(() => firstStatus = status);
+    final request = requests[index];
+    setState(() => requests[index] = request.copyWith(status: status));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(status == 'Approved'
-            ? l10n.fuelApprovedMsg('120 L', 'Dara Sok')
+        content: Text(status == FuelRequestStatus.approved
+            ? l10n.fuelApprovedMsg('${request.liters} L', request.driverName)
             : l10n.fuelRejectedMsg),
         action: SnackBarAction(
           label: l10n.undo,
-          onPressed: () => setState(() => firstStatus = 'Pending'),
+          onPressed: () => setState(() => requests[index] =
+              request.copyWith(status: FuelRequestStatus.pending)),
         ),
       ),
     );
@@ -382,25 +565,14 @@ class _FuelStockManagerDashboardState extends State<FuelStockManagerDashboard> {
             const SizedBox(height: 25),
             SectionHeader(title: l10n.fuelRequestsAwaiting),
             const SizedBox(height: 8),
-            _FuelRequestCard(
-              driver: 'Dara Sok',
-              vehicle: 'PP 3A-1234',
-              amount: '120 L',
-              reason: '${l10n.reasonCurrentTrip} · N1-2034',
-              status: firstStatus,
-              onApprove: () => _updateFirstStatus('Approved'),
-              onReject: () => _updateFirstStatus('Rejected'),
-            ),
-            const SizedBox(height: 12),
-            _FuelRequestCard(
-              driver: 'Vannak Lim',
-              vehicle: 'PP 2D-9090',
-              amount: '80 L',
-              reason: l10n.reasonLowFuel,
-              status: 'Pending',
-              onApprove: () {},
-              onReject: () {},
-            ),
+            for (var i = 0; i < requests.length; i++) ...[
+              if (i > 0) const SizedBox(height: 12),
+              _FuelRequestCard(
+                request: requests[i],
+                onApprove: () => _updateStatus(i, FuelRequestStatus.approved),
+                onReject: () => _updateStatus(i, FuelRequestStatus.rejected),
+              ),
+            ],
             const SizedBox(height: 25),
             SectionHeader(title: l10n.todaysIssuingSummary),
             const SizedBox(height: 8),
@@ -620,40 +792,16 @@ class _ToolTile extends StatelessWidget {
       );
 }
 
-class _FieldTitle extends StatelessWidget {
-  const _FieldTitle(this.label);
-  final String label;
-  @override
-  Widget build(BuildContext context) => Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(label, style: const TextStyle(fontWeight: FontWeight.w900)));
-}
-
 class _FuelRequestCard extends StatelessWidget {
   const _FuelRequestCard(
-      {required this.driver,
-      required this.vehicle,
-      required this.amount,
-      required this.reason,
-      required this.status,
-      required this.onApprove,
-      required this.onReject});
-  final String driver, vehicle, amount, reason, status;
+      {required this.request, required this.onApprove, required this.onReject});
+  final FuelRequest request;
   final VoidCallback onApprove, onReject;
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final pending = status == 'Pending';
-    final color = status == 'Approved'
-        ? AppColors.success
-        : status == 'Rejected'
-            ? AppColors.error
-            : AppColors.warning;
-    final statusLabel = switch (status) {
-      'Approved' => l10n.statusApproved,
-      'Rejected' => l10n.statusRejected,
-      _ => l10n.statusPending,
-    };
+    final pending = request.status == FuelRequestStatus.pending;
+    final color = request.status.color;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -673,13 +821,14 @@ class _FuelRequestCard extends StatelessWidget {
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                    Text('$driver · $amount',
+                    Text('${request.driverName} · ${request.liters} L',
                         style: const TextStyle(fontWeight: FontWeight.w900)),
-                    Text('$vehicle · $reason',
+                    Text(
+                        '${request.vehiclePlate} · ${request.reasonLabel(context)}',
                         style: const TextStyle(
                             color: AppColors.muted, fontSize: 12))
                   ])),
-              StatusBadge(label: statusLabel, color: color)
+              StatusBadge(label: request.status.label(context), color: color)
             ]),
             if (pending) ...[
               const SizedBox(height: 14),
@@ -699,7 +848,7 @@ class _FuelRequestCard extends StatelessWidget {
                             backgroundColor: AppColors.success),
                         child: Text(l10n.approve)))
               ]),
-            ] else if (status == 'Approved') ...[
+            ] else if (request.status == FuelRequestStatus.approved) ...[
               const SizedBox(height: 10),
               TextButton.icon(
                   onPressed: () => ScaffoldMessenger.of(context).showSnackBar(

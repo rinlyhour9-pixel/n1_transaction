@@ -8,7 +8,10 @@ import '../../l10n/generated/app_localizations.dart';
 /// A branded navy AppBar with a curved bottom edge, used on secondary
 /// pages in place of a flat default AppBar so their top chrome matches
 /// the app's other branded headers.
-PreferredSizeWidget curvedAppBar(String title, {List<Widget>? actions}) =>
+PreferredSizeWidget curvedAppBar(String title,
+        {List<Widget>? actions,
+        Widget? backgroundImage,
+        double toolbarHeight = 64}) =>
     AppBar(
       title: Text(title),
       // The theme's AppBarTheme.titleTextStyle hardcodes a dark color for
@@ -22,10 +25,17 @@ PreferredSizeWidget curvedAppBar(String title, {List<Widget>? actions}) =>
       backgroundColor: AppColors.navy,
       foregroundColor: Colors.white,
       elevation: 0,
-      toolbarHeight: 64,
+      toolbarHeight: toolbarHeight,
       systemOverlayStyle: SystemUiOverlayStyle.light,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(26))),
+      flexibleSpace: backgroundImage == null
+          ? null
+          : ClipRRect(
+              borderRadius:
+                  const BorderRadius.vertical(bottom: Radius.circular(26)),
+              child: backgroundImage,
+            ),
       actions: actions,
     );
 

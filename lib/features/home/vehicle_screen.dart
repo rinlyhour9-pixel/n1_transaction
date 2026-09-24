@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
-import '../../shared/models/trip.dart';
+import '../../models/models.dart';
 import '../../shared/widgets/ui_components.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../fuel/fuel_screens.dart';
@@ -39,7 +39,7 @@ class VehicleScreen extends StatelessWidget {
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 1.4)),
                           const SizedBox(height: 8),
-                          Text(demoTrip.vehicle,
+                          Text(demoVehicle.plate,
                               style: const TextStyle(
                                   fontSize: 28, fontWeight: FontWeight.w800)),
                           const SizedBox(height: 4),
@@ -56,12 +56,12 @@ class VehicleScreen extends StatelessWidget {
                       InfoRow(
                           icon: Icons.person_outline,
                           label: l10n.driverLabel,
-                          value: 'Dara Sok'),
+                          value: demoVehicle.driverName),
                       const Divider(),
                       InfoRow(
                           icon: Icons.badge_outlined,
                           label: l10n.driverIdLabel,
-                          value: 'DR-001'),
+                          value: demoVehicle.driverId),
                     ]))),
             const SizedBox(height: 24),
             SectionHeader(title: l10n.vehicleActivity),

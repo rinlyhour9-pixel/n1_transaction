@@ -25,8 +25,8 @@ abstract final class AppTheme {
       colorScheme: scheme,
       scaffoldBackgroundColor:
           dark ? const Color(0xFF101827) : AppColors.background,
-      fontFamily: isKhmer ? 'NotoSansKhmer' : 'Arial',
-      fontFamilyFallback: const ['NotoSansKhmer'],
+      fontFamily: isKhmer ? 'Battambang' : 'Arial',
+      fontFamilyFallback: const ['Battambang'],
       textTheme: base.copyWith(
         displaySmall: base.displaySmall?.copyWith(
           fontSize: 34,
