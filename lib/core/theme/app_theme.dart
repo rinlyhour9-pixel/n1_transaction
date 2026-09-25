@@ -97,6 +97,22 @@ abstract final class AppTheme {
           vertical: 16,
         ),
       ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: dark ? const Color(0xFF23344A) : AppColors.navy,
+        contentTextStyle: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+          fontSize: 13.5,
+          height: 1.35,
+        ),
+        actionTextColor: AppColors.accent,
+        elevation: 6,
+        insetPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
       navigationBarTheme: NavigationBarThemeData(
         height: 70,
         elevation: 0,

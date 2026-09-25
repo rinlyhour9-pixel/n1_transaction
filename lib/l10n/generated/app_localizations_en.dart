@@ -64,6 +64,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get roleCeoSignIn => 'Work email';
 
   @override
+  String get loginTagline => 'Safe Transport · Build Tomorrow';
+
+  @override
   String get welcomeHeadline => 'Logistics that\nmove with confidence.';
 
   @override

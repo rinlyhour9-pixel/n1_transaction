@@ -200,6 +200,12 @@ abstract class AppLocalizations {
   /// **'Work email'**
   String get roleCeoSignIn;
 
+  /// No description provided for @loginTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe Transport · Build Tomorrow'**
+  String get loginTagline;
+
   /// No description provided for @welcomeHeadline.
   ///
   /// In en, this message translates to:

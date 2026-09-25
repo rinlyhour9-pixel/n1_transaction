@@ -64,6 +64,9 @@ class AppLocalizationsKm extends AppLocalizations {
   String get roleCeoSignIn => 'អ៊ីមែលការងារ';
 
   @override
+  String get loginTagline => 'ដឹកជញ្ជូនប្រកបដោយសុវត្ថិភាព · កសាងអនាគត';
+
+  @override
   String get welcomeHeadline => 'ដឹកជញ្ជូន ដោយ\nទំនុកចិត្តពេញលេញ។';
 
   @override

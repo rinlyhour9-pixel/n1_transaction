@@ -491,123 +491,242 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final surface = Theme.of(context).colorScheme.surface;
+    const heroHeight = 250.0;
     return Scaffold(
-        appBar: AppBar(
-          leading: BackButton(onPressed: widget.onBack),
-          title: const _BrandMark(),
-        ),
-        body: SafeArea(
-          top: false,
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 520),
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 14, 20, 28),
-                children: [
-                  _RoleIcon(role: widget.role, size: 58),
-                  const SizedBox(height: 24),
-                  Text(l10n.welcomeBack,
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineMedium
-                          ?.copyWith(fontWeight: FontWeight.w900)),
-                  const SizedBox(height: 7),
-                  Text(
-                      l10n.signInToWorkspace(widget.role.label(context)),
-                      style: const TextStyle(color: AppColors.muted)),
-                  const SizedBox(height: 28),
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                        color: widget.role.color.withValues(alpha: .08),
-                        borderRadius: BorderRadius.circular(14)),
-                    child: Row(children: [
-                      Icon(widget.role.icon,
-                          color: widget.role.foregroundColor),
-                      const SizedBox(width: 10),
-                      Expanded(
-                          child: Text(
-                              l10n.signingInAs(widget.role.label(context)),
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w800))),
-                      TextButton(
-                          onPressed: widget.onChangeRole,
-                          child: Text(l10n.change))
-                    ]),
-                  ),
-                  const SizedBox(height: 22),
-                  Form(
-                    key: formKey,
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          initialValue: widget.role.demoAccount,
-                          keyboardType: _usesEmail
-                              ? TextInputType.emailAddress
-                              : TextInputType.text,
-                          textInputAction: TextInputAction.next,
-                          autofillHints: _usesEmail
-                              ? const [AutofillHints.email]
-                              : const [AutofillHints.username],
-                          decoration: InputDecoration(
-                              labelText: widget.role.signInLabel(context),
-                              prefixIcon: const Icon(Icons.person_outline)),
-                          validator: (value) => value == null ||
-                                  value.trim().isEmpty
-                              ? l10n.enterYourField(
-                                  widget.role.signInLabel(context).toLowerCase())
-                              : null,
-                        ),
-                        const SizedBox(height: 14),
-                        TextFormField(
-                          initialValue: 'n1demo',
-                          obscureText: hidePassword,
-                          textInputAction: TextInputAction.done,
-                          autofillHints: const [AutofillHints.password],
-                          onFieldSubmitted: (_) => _submit(),
-                          decoration: InputDecoration(
-                              labelText: l10n.password,
-                              prefixIcon: const Icon(Icons.lock_outline),
-                              suffixIcon: IconButton(
-                                  onPressed: () => setState(
-                                      () => hidePassword = !hidePassword),
-                                  tooltip: hidePassword
-                                      ? l10n.showPassword
-                                      : l10n.hidePassword,
-                                  icon: Icon(hidePassword
-                                      ? Icons.visibility_outlined
-                                      : Icons.visibility_off_outlined))),
-                          validator: (value) =>
-                              value == null || value.length < 4
-                                  ? l10n.enterValidPassword
-                                  : null,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                          onPressed: () => ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                content: Text(l10n.forgotPasswordMessage),
-                              )),
-                          child: Text(l10n.forgotPassword))),
-                  const SizedBox(height: 16),
-                  PrimaryButton(
-                      label: l10n.signIn,
-                      icon: Icons.login,
-                      isLoading: isLoading,
-                      onPressed: _submit),
-                  const SizedBox(height: 18),
-                  Center(
-                      child: Text(l10n.demoAccessNote,
-                          style: const TextStyle(
-                              color: AppColors.muted, fontSize: 12))),
-                ],
+        backgroundColor: surface,
+        body: Stack(
+          children: [
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: heroHeight,
+              child: Image.asset(
+                'assets/image/background_top_login.png',
+                fit: BoxFit.cover,
               ),
             ),
-          ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 4, 20, 0),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: widget.onBack,
+                        icon: const Icon(Icons.arrow_back,
+                            color: AppColors.navy),
+                      ),
+                      const SizedBox(width: 2),
+                      Image.asset(
+                        'assets/images_Logo/N1_Circle.png',
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.contain,
+                        excludeFromSemantics: true,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('N1 TRANSPORTATION',
+                                style: TextStyle(
+                                    color: AppColors.navy,
+                                    fontSize: 15,
+                                    letterSpacing: .3,
+                                    fontWeight: FontWeight.w900)),
+                            Text(l10n.loginTagline,
+                                style: const TextStyle(
+                                    color: AppColors.muted, fontSize: 11.5)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              top: heroHeight - 26,
+              child: Container(
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  color: surface,
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(28)),
+                ),
+                child: Stack(
+                  children: [
+                    if (!dark)
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: Opacity(
+                          opacity: .7,
+                          child: Image.asset(
+                            'assets/image/background_button_login.png',
+                            height: 220,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    SafeArea(
+                      top: false,
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 520),
+                          child: ListView(
+                            padding:
+                                const EdgeInsets.fromLTRB(20, 22, 20, 28),
+                            children: [
+                              const SizedBox(height: 6),
+                              Text(l10n.welcomeBack,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium
+                                      ?.copyWith(fontWeight: FontWeight.w900)),
+                              const SizedBox(height: 7),
+                              Text(
+                                  l10n.signInToWorkspace(
+                                      widget.role.label(context)),
+                                  style:
+                                      const TextStyle(color: AppColors.muted)),
+                              const SizedBox(height: 24),
+                              Container(
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                    color: widget.role.color
+                                        .withValues(alpha: .08),
+                                    borderRadius: BorderRadius.circular(14)),
+                                child: Row(children: [
+                                  Icon(widget.role.icon,
+                                      color: widget.role.foregroundColor),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                      child: Text(
+                                          l10n.signingInAs(
+                                              widget.role.label(context)),
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w800))),
+                                  TextButton(
+                                      onPressed: widget.onChangeRole,
+                                      child: Text(l10n.change))
+                                ]),
+                              ),
+                              const SizedBox(height: 22),
+                              Form(
+                                key: formKey,
+                                child: Column(
+                                  children: [
+                                    TextFormField(
+                                      initialValue: widget.role.demoAccount,
+                                      keyboardType: _usesEmail
+                                          ? TextInputType.emailAddress
+                                          : TextInputType.text,
+                                      textInputAction: TextInputAction.next,
+                                      autofillHints: _usesEmail
+                                          ? const [AutofillHints.email]
+                                          : const [AutofillHints.username],
+                                      decoration: InputDecoration(
+                                          labelText:
+                                              widget.role.signInLabel(context),
+                                          prefixIcon: const Icon(
+                                              Icons.person_outline)),
+                                      validator: (value) => value == null ||
+                                              value.trim().isEmpty
+                                          ? l10n.enterYourField(widget.role
+                                              .signInLabel(context)
+                                              .toLowerCase())
+                                          : null,
+                                    ),
+                                    const SizedBox(height: 14),
+                                    TextFormField(
+                                      initialValue: 'n1demo',
+                                      obscureText: hidePassword,
+                                      textInputAction: TextInputAction.done,
+                                      autofillHints: const [
+                                        AutofillHints.password
+                                      ],
+                                      onFieldSubmitted: (_) => _submit(),
+                                      decoration: InputDecoration(
+                                          labelText: l10n.password,
+                                          prefixIcon:
+                                              const Icon(Icons.lock_outline),
+                                          suffixIcon: IconButton(
+                                              onPressed: () => setState(() =>
+                                                  hidePassword =
+                                                      !hidePassword),
+                                              tooltip: hidePassword
+                                                  ? l10n.showPassword
+                                                  : l10n.hidePassword,
+                                              icon: Icon(hidePassword
+                                                  ? Icons.visibility_outlined
+                                                  : Icons
+                                                      .visibility_off_outlined))),
+                                      validator: (value) =>
+                                          value == null || value.length < 4
+                                              ? l10n.enterValidPassword
+                                              : null,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton(
+                                      onPressed: () =>
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                            content: Text(
+                                                l10n.forgotPasswordMessage),
+                                          )),
+                                      child: Text(l10n.forgotPassword))),
+                              const SizedBox(height: 16),
+                              PrimaryButton(
+                                  label: l10n.signIn,
+                                  icon: Icons.login,
+                                  isLoading: isLoading,
+                                  onPressed: _submit),
+                              const SizedBox(height: 18),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 1),
+                                    child: Icon(Icons.verified_user_outlined,
+                                        size: 14, color: AppColors.muted),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(l10n.demoAccessNote,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                            color: AppColors.muted,
+                                            fontSize: 12)),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       );
   }
@@ -718,17 +837,17 @@ class _RoleCardState extends State<_RoleCard> {
 }
 
 class _RoleIcon extends StatelessWidget {
-  const _RoleIcon({required this.role, this.size = 48});
+  const _RoleIcon({required this.role});
   final AppRole role;
-  final double size;
+  static const _size = 48.0;
   @override
   Widget build(BuildContext context) => Container(
-      width: size,
-      height: size,
+      width: _size,
+      height: _size,
       decoration: BoxDecoration(
           color: role.color.withValues(alpha: .13),
-          borderRadius: BorderRadius.circular(size * .28)),
-      child: Icon(role.icon, color: role.color, size: size * .48));
+          borderRadius: BorderRadius.circular(_size * .28)),
+      child: Icon(role.icon, color: role.color, size: _size * .48));
 }
 
 class _BrandMark extends StatelessWidget {
