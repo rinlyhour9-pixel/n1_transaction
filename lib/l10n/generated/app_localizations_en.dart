@@ -271,6 +271,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notif2h => '2h';
 
   @override
+  String get notifFilterUnread => 'Unread';
+
+  @override
+  String get notifFilterReads => 'Reads';
+
+  @override
+  String get notifNoneMessage => 'You\'re all caught up.';
+
+  @override
   String get completedTripsTitle => 'Completed trips';
 
   @override

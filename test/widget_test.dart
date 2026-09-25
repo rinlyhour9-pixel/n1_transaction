@@ -75,6 +75,10 @@ void main() {
   });
 
   testWidgets('driver can complete the role-based entry flow', (tester) async {
+    tester.view.physicalSize = const Size(430, 932);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(const N1App());
 
     await tester.tap(find.text('Open N1 TRANSPORTATION'));
@@ -125,7 +129,7 @@ void main() {
       expect(find.text('Driver ID · DR-001'), findsNothing);
       await tester.tap(find.byTooltip('Notifications'));
       await tester.pumpAndSettle();
-      expect(find.text('No new notifications'), findsOneWidget);
+      expect(find.text('New trip assigned'), findsOneWidget);
       await tester.tap(find.byTooltip('Home'));
       await tester.pumpAndSettle();
       expect(find.text('Welcome,'), findsOneWidget);

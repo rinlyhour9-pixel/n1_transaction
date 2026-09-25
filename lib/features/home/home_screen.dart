@@ -280,51 +280,171 @@ class _QuickAction extends StatelessWidget {
       );
 }
 
-class NotificationsScreen extends StatelessWidget {
+enum _NotifFilter { all, unread, read }
+
+class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
+  @override
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  var filter = _NotifFilter.all;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final items = demoNotifications.where((n) => switch (filter) {
+          _NotifFilter.all => true,
+          _NotifFilter.unread => n.unread,
+          _NotifFilter.read => !n.unread,
+        });
     return Scaffold(
-      appBar: curvedAppBar(l10n.notifications),
-      body: ListView.separated(
-        itemCount: demoNotifications.length,
-        separatorBuilder: (context, index) => const Divider(),
-        itemBuilder: (context, index) {
-          final notification = demoNotifications[index];
-          return ListTile(
-            leading: CircleAvatar(child: Icon(notification.icon)),
-            title: Text(notification.title(context)),
-            subtitle: Text(notification.subtitle(context)),
-            trailing: _NotifTrailing(time: notification.time.label(context)),
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => switch (notification.type) {
-                          NotificationType.newTrip => const TripDetailScreen(),
-                          NotificationType.fuelApproved =>
-                            const FuelReportsScreen(),
-                        })),
-          );
-        },
+      appBar: curvedAppBar(
+        l10n.notifications,
+        toolbarHeight: 92,
+        backgroundImage: Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned(
+              right: -22,
+              bottom: -8,
+              child: Image.asset(
+                'assets/image/background_header.png',
+                height: 104,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        children: [
+          Wrap(spacing: 8, children: [
+            for (final value in _NotifFilter.values)
+              ChoiceChip(
+                label: Text(switch (value) {
+                  _NotifFilter.all => l10n.filterAll,
+                  _NotifFilter.unread => l10n.notifFilterUnread,
+                  _NotifFilter.read => l10n.notifFilterReads,
+                }),
+                selected: filter == value,
+                onSelected: (_) => setState(() => filter = value),
+              ),
+          ]),
+          const SizedBox(height: 20),
+          if (items.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 48),
+              child: EmptyState(
+                  title: l10n.notifNoneTitle, message: l10n.notifNoneMessage),
+            )
+          else ...[
+            Text(
+              l10n.todaySectionLabel,
+              style: const TextStyle(
+                  color: AppColors.muted,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12),
+            ),
+            const SizedBox(height: 10),
+            for (final notification in items) ...[
+              _NotificationCard(
+                notification: notification,
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => switch (notification.type) {
+                              NotificationType.newTrip =>
+                                const TripDetailScreen(),
+                              NotificationType.fuelApproved =>
+                                const FuelReportsScreen(),
+                            })),
+              ),
+              const SizedBox(height: 12),
+            ],
+          ],
+        ],
       ),
     );
   }
 }
 
-class _NotifTrailing extends StatelessWidget {
-  const _NotifTrailing({required this.time});
-  final String time;
+class _NotificationCard extends StatelessWidget {
+  const _NotificationCard({required this.notification, this.onTap});
+  final NotificationItem notification;
+  final VoidCallback? onTap;
+
   @override
-  Widget build(BuildContext context) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(time,
-              style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
-          const SizedBox(width: 2),
-          const Icon(Icons.chevron_right, size: 20, color: AppColors.muted),
-        ],
-      );
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final unread = notification.unread;
+    return Material(
+      color: unread
+          ? AppColors.accent.withValues(alpha: dark ? .16 : .08)
+          : (dark ? const Color(0xFF242424) : Colors.white),
+      borderRadius: BorderRadius.circular(20),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: 22,
+                  backgroundColor: AppColors.accent.withValues(alpha: .15),
+                  child: Icon(notification.icon, color: AppColors.navy),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(notification.title(context),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w700, fontSize: 15)),
+                      const SizedBox(height: 4),
+                      Text(notification.subtitle(context),
+                          style: const TextStyle(
+                              color: AppColors.muted, fontSize: 12.5)),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Row(mainAxisSize: MainAxisSize.min, children: [
+                      Text(notification.time.label(context),
+                          style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                              color:
+                                  unread ? AppColors.blue : AppColors.muted)),
+                      if (unread) ...[
+                        const SizedBox(width: 5),
+                        Container(
+                            width: 7,
+                            height: 7,
+                            decoration: const BoxDecoration(
+                                color: AppColors.blue, shape: BoxShape.circle)),
+                      ],
+                    ]),
+                    const Icon(Icons.chevron_right,
+                        color: AppColors.muted, size: 20),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

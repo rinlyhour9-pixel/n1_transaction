@@ -566,6 +566,24 @@ abstract class AppLocalizations {
   /// **'2h'**
   String get notif2h;
 
+  /// No description provided for @notifFilterUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread'**
+  String get notifFilterUnread;
+
+  /// No description provided for @notifFilterReads.
+  ///
+  /// In en, this message translates to:
+  /// **'Reads'**
+  String get notifFilterReads;
+
+  /// No description provided for @notifNoneMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all caught up.'**
+  String get notifNoneMessage;
+
   /// No description provided for @completedTripsTitle.
   ///
   /// In en, this message translates to:

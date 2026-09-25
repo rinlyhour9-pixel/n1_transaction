@@ -91,6 +91,9 @@
   "notifFuelApprovedTitle": "សំណើសុំប្រេងឥន្ធនៈត្រូវបានអនុម័ត",
   "notifFuelApprovedSubtitle": "{liters} សម្រាប់ {plate}",
   "notif2h": "២ម៉ោង",
+  "notifFilterUnread": "មិនទាន់អាន",
+  "notifFilterReads": "បានអាន",
+  "notifNoneMessage": "អ្នកបានមើលការជូនដំណឹងទាំងអស់ហើយ។",
   "completedTripsTitle": "ដំណើរដែលបានបញ្ចប់",
 
   "assignedVehicle": "យានយន្តដែលបានចាត់តាំង",

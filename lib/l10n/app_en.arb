@@ -98,6 +98,9 @@
   "notifFuelApprovedSubtitle": "{liters} for {plate}",
   "@notifFuelApprovedSubtitle": { "placeholders": { "liters": {}, "plate": {} } },
   "notif2h": "2h",
+  "notifFilterUnread": "Unread",
+  "notifFilterReads": "Reads",
+  "notifNoneMessage": "You're all caught up.",
   "completedTripsTitle": "Completed trips",
 
   "assignedVehicle": "ASSIGNED VEHICLE",

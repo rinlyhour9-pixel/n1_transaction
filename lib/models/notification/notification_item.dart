@@ -24,6 +24,7 @@ class NotificationItem {
   const NotificationItem({
     required this.type,
     required this.time,
+    this.unread = false,
     this.tripId,
     this.tripTime,
     this.fuelLiters,
@@ -32,6 +33,7 @@ class NotificationItem {
 
   final NotificationType type;
   final NotificationTime time;
+  final bool unread;
   final String? tripId, tripTime, fuelLiters, vehiclePlate;
 
   IconData get icon => switch (type) {
@@ -61,6 +63,7 @@ const demoNotifications = [
   NotificationItem(
     type: NotificationType.newTrip,
     time: NotificationTime.now,
+    unread: true,
     tripId: 'N1-2034',
     tripTime: '08:30 AM',
   ),

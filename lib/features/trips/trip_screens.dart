@@ -689,36 +689,42 @@ class _InlineCompletedCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: .05),
           borderRadius: BorderRadius.circular(24)),
-      child: Column(
-        children: [
-          const CircleAvatar(
-            radius: 30,
-            backgroundColor: AppColors.success,
-            child: Icon(Icons.check, color: Colors.white, size: 32),
+      child: Row(children: [
+        const CircleAvatar(
+          backgroundColor: AppColors.success,
+          child: Icon(Icons.check, color: Colors.white),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.tripCompletedTitle,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700)),
+              const SizedBox(height: 4),
+              const Text('N1-2034 · Cement · 25 Tons',
+                  style: TextStyle(color: Colors.white54, fontSize: 12)),
+              if (completedAt != null) ...[
+                const SizedBox(height: 2),
+                Text(
+                    l10n.completedAtTime(TimeOfDay.fromDateTime(completedAt!)
+                        .format(context)),
+                    style: const TextStyle(
+                        color: tripAccent,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12)),
+              ],
+            ],
           ),
-          const SizedBox(height: 14),
-          Text(l10n.tripCompletedTitle,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900)),
-          const SizedBox(height: 6),
-          const Text('N1-2034 · Cement · 25 Tons',
-              style: TextStyle(color: Colors.white54)),
-          if (completedAt != null) ...[
-            const SizedBox(height: 4),
-            Text(
-                l10n.completedAtTime(
-                    TimeOfDay.fromDateTime(completedAt!).format(context)),
-                style: const TextStyle(
-                    color: tripAccent, fontWeight: FontWeight.w600)),
-          ],
-        ],
-      ),
+        ),
+      ]),
     );
   }
 }

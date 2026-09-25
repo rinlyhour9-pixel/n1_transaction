@@ -5,6 +5,7 @@ import '../../l10n/generated/app_localizations.dart';
 import '../../models/models.dart';
 import '../../shared/widgets/ui_components.dart';
 import '../auth/auth_flow.dart';
+import '../home/home_screen.dart' show NotificationsScreen;
 import '../profile/profile_screen.dart';
 import 'fuel_reports_screen.dart';
 import 'trip_adviser_screens.dart';
@@ -51,10 +52,7 @@ class _RoleShellState extends State<RoleShell> {
     return Scaffold(
       body: IndexedStack(index: index, children: [
         dashboard,
-        Scaffold(
-          appBar: curvedAppBar(l10n.notifications),
-          body: Center(child: Text(l10n.notifNoneTitle)),
-        ),
+        const NotificationsScreen(),
         ProfileScreen(
           name: name,
           accountLabel:

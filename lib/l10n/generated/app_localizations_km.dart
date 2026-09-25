@@ -273,6 +273,15 @@ class AppLocalizationsKm extends AppLocalizations {
   String get notif2h => '២ម៉ោង';
 
   @override
+  String get notifFilterUnread => 'មិនទាន់អាន';
+
+  @override
+  String get notifFilterReads => 'បានអាន';
+
+  @override
+  String get notifNoneMessage => 'អ្នកបានមើលការជូនដំណឹងទាំងអស់ហើយ។';
+
+  @override
   String get completedTripsTitle => 'ដំណើរដែលបានបញ្ចប់';
 
   @override
