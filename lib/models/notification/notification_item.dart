@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../features/auth/auth_flow.dart';
 
 enum NotificationType { newTrip, fuelApproved }
 
@@ -19,7 +20,8 @@ extension NotificationTimeDetails on NotificationTime {
 
 /// A single alert on the notifications screen, e.g. a new trip assignment
 /// or a fuel request update. [tripId]/[tripTime] fill the new-trip message,
-/// [fuelLiters]/[vehiclePlate] fill the fuel-approved one.
+/// [fuelLiters]/[vehiclePlate] fill the fuel-approved one. [roles] limits
+/// which signed-in role sees the alert; leave it null to show it to everyone.
 class NotificationItem {
   const NotificationItem({
     required this.type,
@@ -29,12 +31,16 @@ class NotificationItem {
     this.tripTime,
     this.fuelLiters,
     this.vehiclePlate,
+    this.roles,
   });
 
   final NotificationType type;
   final NotificationTime time;
   final bool unread;
   final String? tripId, tripTime, fuelLiters, vehiclePlate;
+  final List<AppRole>? roles;
+
+  bool visibleTo(AppRole role) => roles == null || roles!.contains(role);
 
   IconData get icon => switch (type) {
         NotificationType.newTrip => Icons.route,
@@ -66,11 +72,13 @@ const demoNotifications = [
     unread: true,
     tripId: 'N1-2034',
     tripTime: '08:30 AM',
+    roles: [AppRole.driver],
   ),
   NotificationItem(
     type: NotificationType.fuelApproved,
     time: NotificationTime.twoHoursAgo,
     fuelLiters: '120 L',
     vehiclePlate: 'PP 3A-1234',
+    roles: [AppRole.driver, AppRole.fuelStockManager],
   ),
 ];

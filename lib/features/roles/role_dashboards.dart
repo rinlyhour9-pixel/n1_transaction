@@ -52,7 +52,7 @@ class _RoleShellState extends State<RoleShell> {
     return Scaffold(
       body: IndexedStack(index: index, children: [
         dashboard,
-        const NotificationsScreen(),
+        NotificationsScreen(role: widget.role),
         ProfileScreen(
           name: name,
           accountLabel:

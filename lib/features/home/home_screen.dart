@@ -5,6 +5,7 @@ import '../../l10n/generated/app_localizations.dart';
 import '../../models/models.dart';
 import '../../shared/widgets/ui_components.dart';
 import '../../shared/widgets/trip_presentation.dart';
+import '../auth/auth_flow.dart';
 import '../fuel/fuel_screens.dart';
 import '../profile/profile_screen.dart';
 import '../roles/fuel_reports_screen.dart';
@@ -44,7 +45,9 @@ class _DriverShellState extends State<DriverShell> {
         ),
         onNotifications: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+          MaterialPageRoute(
+              builder: (_) =>
+                  const NotificationsScreen(role: AppRole.driver)),
         ),
       ),
       const TripsScreen(),
@@ -283,7 +286,8 @@ class _QuickAction extends StatelessWidget {
 enum _NotifFilter { all, unread, read }
 
 class NotificationsScreen extends StatefulWidget {
-  const NotificationsScreen({super.key});
+  const NotificationsScreen({super.key, required this.role});
+  final AppRole role;
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
 }
@@ -294,11 +298,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final items = demoNotifications.where((n) => switch (filter) {
-          _NotifFilter.all => true,
-          _NotifFilter.unread => n.unread,
-          _NotifFilter.read => !n.unread,
-        });
+    final items = demoNotifications
+        .where((n) => n.visibleTo(widget.role))
+        .where((n) => switch (filter) {
+              _NotifFilter.all => true,
+              _NotifFilter.unread => n.unread,
+              _NotifFilter.read => !n.unread,
+            });
     return Scaffold(
       appBar: curvedAppBar(
         l10n.notifications,

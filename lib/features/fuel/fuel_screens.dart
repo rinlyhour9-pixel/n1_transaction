@@ -4,6 +4,7 @@ import '../../core/theme/app_colors.dart';
 import '../../models/models.dart';
 import '../../shared/widgets/ui_components.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../auth/auth_flow.dart';
 import '../home/home_screen.dart' show NotificationsScreen;
 
 class FuelScreen extends StatelessWidget {
@@ -23,7 +24,8 @@ class FuelScreen extends StatelessWidget {
               onNotifications: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => const NotificationsScreen()))),
+                      builder: (_) =>
+                          const NotificationsScreen(role: AppRole.driver)))),
           const SizedBox(height: 24),
           _FuelGaugeCard(vehicle: vehicle),
           const SizedBox(height: 16),
